@@ -22,8 +22,10 @@ using System.IO;
 using System.Net.Mail;
 
 using System.Net;
+using cha.modules;
+using cha.utils;
 
-
+using Newtonsoft.Json.Converters;
 
 /// <summary>
 /// Summary description for masterfile
@@ -6346,4 +6348,137 @@ public class masterfile : System.Web.Services.WebService
     }
     #endregion
 
+    #region "Pricing"
+
+    [WebMethod(EnableSession = true)]
+    [ScriptMethod(ResponseFormat = ResponseFormat.Json, UseHttpGet = true)]
+    public string GetTableData_Cost(string po_no, string receiving_receipt, string control_no, string company_cd)
+    {
+        try
+        {
+            String connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
+            CostingModule costingModule = new CostingModule(connectionString);
+            EndingInventoryDataTable costingDataTable = costingModule.getReceivedItems(company_cd, po_no, receiving_receipt, control_no);
+            
+            return "{\"aaData\":" + costingDataTable.toJsonFormat() + " , \"received_total\":" + costingDataTable.getTotalCostSum() + " }";
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine("error: " + ex.Message);
+            Context.Response.StatusCode = (int)System.Net.HttpStatusCode.InternalServerError;
+            Context.Response.StatusDescription = ex.Message;
+            return null;
+
+        }
+
+    }
+
+    [WebMethod(EnableSession = true)]
+    [ScriptMethod(ResponseFormat = ResponseFormat.Json, UseHttpGet = false)]
+    public string GetIssuanceList(Dictionary<string, string> selected_row)
+    {
+        try
+        {
+            String connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
+            CostingModule costingModule = new CostingModule(connectionString);
+            EndingInventoryDataTable costingDataTable = costingModule.getIssuedItemsByReceivedEntry(selected_row);
+
+            return "{\"aaData\":" + costingDataTable.toJsonFormat() + "}";
+        }
+
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine("error: " + ex.Message);
+            Context.Response.StatusCode = (int)System.Net.HttpStatusCode.InternalServerError;
+            Context.Response.StatusDescription = ex.Message;
+            return null;
+        }
+    }
+
+
+    [WebMethod(EnableSession = true)]
+    [ScriptMethod(ResponseFormat = ResponseFormat.Json, UseHttpGet = false)]
+    public void UpdateStockCardUnitCost(Dictionary<string, string> selected_row, decimal value)
+    {
+
+
+
+        String connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
+        CostingModule costingModule = new CostingModule(connectionString);
+
+        try
+        {
+            costingModule.updateUnitCost(selected_row, value);
+        }
+        catch (Exception ex)
+        {
+            if (ex is InvalidOperationException)
+            {
+                Context.Response.StatusCode = (int)System.Net.HttpStatusCode.Forbidden;
+            }
+            else
+            {
+                Context.Response.StatusCode = (int)System.Net.HttpStatusCode.InternalServerError;
+            }
+            System.Diagnostics.Debug.WriteLine("error: " + ex.Message);
+            Context.Response.StatusDescription = ex.Message;
+        }
+
+    }
+
+    [WebMethod(EnableSession = true)]
+    [ScriptMethod(ResponseFormat = ResponseFormat.Json, UseHttpGet = false)]
+    public void isRecordsValid(Dictionary<string, string> values)
+    {
+
+        string company_cd = values["company_cd"];
+        string item_category_cd = values["item_category_cd"];
+        DateTime as_of_date = Convert.ToDateTime(values["as_of_date"]);
+        int report_details = Convert.ToInt32(values["report_details"]);
+        String connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
+
+        CostingDataSet stk_ds = new CostingDataSet();
+        LinkedList<String> inventoryItemList = new LinkedList<string>();
+        DataTable dtFromDataSet = stk_ds.Tables["stock_inventory"];
+        EndingInventoryDataTable endingInventoryDataTable = new EndingInventoryDataTable();
+        if (report_details == 0) { endingInventoryDataTable.ReportType = EndingInventoryDataTable.Details.Summarized; }
+
+
+        try
+        {
+            using (SqlConnection con = new SqlConnection(connectionString))
+            {
+                DataTable dataTable = new DataTable();
+                SqlDataAdapter adapter = new SqlDataAdapter("sp_ending_inventory", con);
+                adapter.SelectCommand.Parameters.AddWithValue("@companyCd", company_cd);
+                adapter.SelectCommand.Parameters.AddWithValue("@date", as_of_date);
+                adapter.SelectCommand.Parameters.AddWithValue("@itemCategoryCd", item_category_cd);
+                adapter.SelectCommand.CommandType = CommandType.StoredProcedure;
+                adapter.Fill(dataTable);
+                foreach (DataRow dr in dataTable.Rows)
+                {
+                    endingInventoryDataTable.addRow(dr);
+                }
+            }
+        }
+
+        catch (Exception ex)
+        {
+            if (ex is InvalidOperationException)
+            {
+                Context.Response.StatusCode = (int)System.Net.HttpStatusCode.Forbidden;
+            }
+            else
+            {
+                Context.Response.StatusCode = (int)System.Net.HttpStatusCode.InternalServerError;
+            }
+            System.Diagnostics.Debug.WriteLine("error: " + ex.Message);
+            Context.Response.StatusDescription = ex.Message;
+        }
+
+    }
+
+
+
+    #endregion
 }
