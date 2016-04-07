@@ -87,14 +87,14 @@ public partial class CostingReportViewer : System.Web.UI.Page
             }
 
 
-
+            Crystal_datasource.SetupReport(cryRpt);
 
             cryRpt.SetDataSource(stk_ds.Tables["stock_inventory"]);
             cryRpt.ParameterFields["user"].CurrentValues.AddValue(HttpContext.Current.Session["username"].ToString());
             cryRpt.ParameterFields["year"].CurrentValues.AddValue("change this year");
             cryRpt.ParameterFields["date"].CurrentValues.AddValue(as_of_date.ToString("MMM-dd-yyyy"));
             cryRpt.ParameterFields["item_category_descs"].CurrentValues.AddValue(item_category_descs);
-            Crystal_datasource.SetupReport(cryRpt);
+            
             cryRpt.ExportOptions.ExportDestinationType = ExportDestinationType.DiskFile;
             cryRpt.ExportOptions.ExportFormatType = ExportFormatType.Excel;
 
@@ -122,7 +122,8 @@ public partial class CostingReportViewer : System.Web.UI.Page
                 foreach (FileInfo file in downloadedMessageInfo.GetFiles())
                 {
                     file.Delete();
-                }cryRpt.Export();
+                }
+                cryRpt.Export();
             }
             catch (Exception ex)
             {
