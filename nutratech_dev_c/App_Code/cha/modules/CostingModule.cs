@@ -1,6 +1,5 @@
 ﻿using cha.utils;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
+
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -154,7 +153,7 @@ namespace cha.modules
 
       
 
-        private void updateUnitCostByReceivingEntry(decimal unit_cost,string company_cd,  
+        private void updateUnitCostByReceiptingDetails(decimal unit_cost,string company_cd,  
             string item_cd,
             string item_type_cd,
             string item_class_cd,
@@ -162,7 +161,8 @@ namespace cha.modules
             string receiving_receipt, 
             string control_no,
             string lot_no,
-            string warehouse_cd) {
+            string warehouse_cd,
+            string doc_no) {
 
               
                 if (connectionString != null) {
@@ -184,6 +184,7 @@ namespace cha.modules
                         command.Parameters.AddWithValue("@controlNo", control_no);
                         command.Parameters.AddWithValue("@lotNo", lot_no);
                         command.Parameters.AddWithValue("@warehouseCd", warehouse_cd);
+                        command.Parameters.AddWithValue("@docNo", '%'+doc_no+'%');
                       
                         try
                         {
@@ -207,7 +208,7 @@ namespace cha.modules
         
         }
        
-        public void updateUnitCost(Dictionary<string, string> selected_row, decimal value){
+        public void updateUnitCost(Dictionary<string, string> selected_row, decimal value, int by_doc_no){
             decimal unit_cost = value;
            
             string item_cd = selected_row["item_cd"];
@@ -216,26 +217,39 @@ namespace cha.modules
             string item_category_cd = selected_row["item_category_cd"];
             string po_no = selected_row["po_no"];
             string company_cd = selected_row["company_cd"];
+            string doc_no = selected_row["doc_no"];
+            string warehouse_cd = selected_row["warehouse_cd"];
+            string receiving_receipt = selected_row["receiving_receipt"];
+            string control_no = selected_row["control_no"];
+            string lot_no = selected_row["lot_no"];
             EndingInventoryDataTable receivedItemsDataTable = new EndingInventoryDataTable();
                 if (connectionString != null)
                 {
                         using (connection = new SqlConnection(connectionString))
                         {
 
-                            receivedItemsDataTable = this.getReceivedItemsByReceiptingDetails(selected_row);
-                            System.Diagnostics.Debug.WriteLine("Scanning received items");
-                            foreach (DataRow dr in receivedItemsDataTable.Rows)
+                            if (by_doc_no != 1)
                             {
-                                System.Diagnostics.Debug.WriteLine("RECEIVED ITEM: " + dr["item_descs"].ToString());
-                                EndingInventoryDataTable issuedItemsDataTable = new EndingInventoryDataTable();
-                                string received_rr = dr["receiving_receipt"].ToString();
-                                string received_qc_no = dr["control_no"].ToString();
-                                string received_lot_no = dr["lot_no"].ToString();
-                                string received_warehouse = dr["warehouse_cd"].ToString();
-                             
-                                this.updateUnitCostByReceivingEntry(unit_cost, company_cd, item_cd, item_type_cd, item_class_cd, item_category_cd, received_rr, received_qc_no, received_lot_no, received_warehouse);
-                                System.Diagnostics.Debug.WriteLine("RECEIVED " + dr["item_descs"].ToString() + " UNIT COST UPDATED");
+                                receivedItemsDataTable = this.getReceivedItemsByReceiptingDetails(selected_row);
+                                System.Diagnostics.Debug.WriteLine("Scanning received items");
+                                foreach (DataRow dr in receivedItemsDataTable.Rows)
+                                {
+                                    System.Diagnostics.Debug.WriteLine("RECEIVED ITEM: " + dr["item_descs"].ToString());
+                                    EndingInventoryDataTable issuedItemsDataTable = new EndingInventoryDataTable();
+                                    string received_rr = dr["receiving_receipt"].ToString();
+                                    string received_qc_no = dr["control_no"].ToString();
+                                    string received_lot_no = dr["lot_no"].ToString();
+                                    string received_warehouse = dr["warehouse_cd"].ToString();
+
+                                    this.updateUnitCostByReceiptingDetails(unit_cost, company_cd, item_cd, item_type_cd, item_class_cd, item_category_cd, received_rr, received_qc_no, received_lot_no, received_warehouse, "");
+                                    System.Diagnostics.Debug.WriteLine("RECEIVED " + dr["item_descs"].ToString() + " UNIT COST UPDATED");
+                                }
                             }
+                            else
+                            {
+                                updateUnitCostByReceiptingDetails(unit_cost, company_cd, item_cd, item_type_cd, item_class_cd, item_category_cd, receiving_receipt, control_no, lot_no, warehouse_cd, doc_no);
+                            }
+                           
                         }
                   
                 }

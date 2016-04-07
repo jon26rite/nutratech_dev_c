@@ -13,19 +13,17 @@ using System.Data.SqlClient;
 
 using System.Web.Script.Services;
 using System.Text;
-using Newtonsoft.Json;
 using System.Globalization;
 using System.Web.Script.Serialization;
 
-using ClosedXML.Excel;
 using System.IO;
 using System.Net.Mail;
 
 using System.Net;
 using cha.modules;
 using cha.utils;
+using ClosedXML.Excel;
 
-using Newtonsoft.Json.Converters;
 
 /// <summary>
 /// Summary description for masterfile
@@ -6373,6 +6371,8 @@ public class masterfile : System.Web.Services.WebService
 
     }
 
+    
+
     [WebMethod(EnableSession = true)]
     [ScriptMethod(ResponseFormat = ResponseFormat.Json, UseHttpGet = false)]
     public string GetIssuanceList(Dictionary<string, string> selected_row)
@@ -6398,7 +6398,7 @@ public class masterfile : System.Web.Services.WebService
 
     [WebMethod(EnableSession = true)]
     [ScriptMethod(ResponseFormat = ResponseFormat.Json, UseHttpGet = false)]
-    public void UpdateStockCardUnitCost(Dictionary<string, string> selected_row, decimal value)
+    public void UpdateStockCardUnitCost(Dictionary<string, string> selected_row, decimal value, int by_doc_no)
     {
 
 
@@ -6408,7 +6408,7 @@ public class masterfile : System.Web.Services.WebService
 
         try
         {
-            costingModule.updateUnitCost(selected_row, value);
+            costingModule.updateUnitCost(selected_row, value, by_doc_no);
         }
         catch (Exception ex)
         {

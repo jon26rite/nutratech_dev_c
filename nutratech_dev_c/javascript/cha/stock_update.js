@@ -209,6 +209,8 @@ function InitTable() {
                          var rowData = oTable.fnGetData(rowId);
                          sentObject["value"] = value;
                          sentObject["rowData"] = rowData;
+                         sentObject["byDocNo"] = 0;
+
 
                          if (disableConfirmation == true) {
                              if (UpdateData(sentObject) == 1) {
@@ -234,7 +236,8 @@ function UpdateData(sentObject) {
 
     var DTO = {
         value : sentObject.value,
-        selected_row: sentObject.rowData
+        selected_row: sentObject.rowData,
+        by_doc_no : sentObject.byDocNo
     };
 
 
@@ -365,6 +368,47 @@ function table_slider() {
                     { "mDataProp": "lot_no", "sTitle": "Lot No", "sWidth": "80px" },
                     { "mDataProp": "mfg_date", "sTitle": "Mfg. Date", "sWidth": "80px" },
                     { "mDataProp": "expiry_date", "sTitle": "Expiry Date", "sWidth": "80px" }
+                    ]
+                }).makeEditable({
+                    "aoColumns": [
+                       null,
+                            null,   //item_cd
+                            null,   //item descs
+                            null,   //qty
+                            null,   //c uom conversion
+                             {
+                                 indicator: 'Saving ...',
+                                 tooltip: 'Click to edit',
+                                 onsubmit: function (settings, original) {
+                                     disableConfirmation = true;//confirmation is disabled
+                                 },
+                                 callback: function (sValue, settings) {
+
+                                 },
+                                 onblur: 'cancel',
+                                 type: 'numeric',
+                                 sUpdateURL: function (value, settings) {
+                                     var sentObject = {};
+                                     var rowId = oInnerTable.fnGetPosition(this)[0];
+                                     // var columnId = oTable.fnGetPosition(this)[2];
+                                     var rowData = oInnerTable.fnGetData(rowId);
+                                     sentObject["value"] = value;
+                                     sentObject["rowData"] = rowData;
+                                     sentObject["byDocNo"] = 1;
+
+                                     if (disableConfirmation == true) {
+                                         if (UpdateData(sentObject) == 1) {
+                                             return value;
+                                         }
+
+                                         else { return rowData.unit_cost; }
+                                     }
+                                     else {
+                                         alert("update is not allowed");
+                                         return rowData.unit_cost
+                                     }
+                                 }
+                             }  //unit_cost
                     ]
                 });
                 iTableCounter = iTableCounter + 1;
