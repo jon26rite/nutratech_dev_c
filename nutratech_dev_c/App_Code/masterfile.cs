@@ -6358,7 +6358,7 @@ public class masterfile : System.Web.Services.WebService
             CostingModule costingModule = new CostingModule(connectionString);
             EndingInventoryDataTable costingDataTable = costingModule.getReceivedItems(company_cd, po_no, receiving_receipt, control_no);
             
-            return "{\"aaData\":" + costingDataTable.toJsonFormat() + " , \"received_total\":" + costingDataTable.getTotalCostSum() + " }";
+            return "{\"aaData\":" + costingDataTable.toJsonFormat() + " , \"received_total\":" + costingDataTable.getTotalCostReceived() + " }";
         }
         catch (Exception ex)
         {

@@ -283,12 +283,31 @@ namespace cha.utils
             return row;
         }
 
-        public double getTotalCostSum()
+        public double getTotalCostReceived()
         {
             double total_cost_sum = 0;
             foreach (EIDataRow dr in this.Rows)
             {
-                total_cost_sum += Convert.ToDouble(dr.total_cost);
+                if (dr.inout_mode == "I")
+                {
+                    total_cost_sum += Convert.ToDouble(dr.total_cost);
+                }
+                
+            }
+            return total_cost_sum;
+
+        }
+
+        public double getTotalCostIssued()
+        {
+            double total_cost_sum = 0;
+            foreach (EIDataRow dr in this.Rows)
+            {
+                if (dr.inout_mode == "O")
+                {
+                    total_cost_sum += Convert.ToDouble(dr.total_cost);
+                }
+
             }
             return total_cost_sum;
 
