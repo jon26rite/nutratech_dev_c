@@ -59,7 +59,7 @@ public partial class stock : System.Web.UI.Page
         {
             ListItem listItem = new ListItem();
             listItem.Text = "All";
-            listItem.Value = "%";
+            listItem.Value = "%%";
             DataTable dtDocNum = new DataTable();
             String selection = "";
             string queryString = "";

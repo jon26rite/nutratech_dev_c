@@ -6357,7 +6357,7 @@ public class masterfile : System.Web.Services.WebService
             String connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
             CostingModule costingModule = new CostingModule(connectionString);
             EndingInventoryDataTable costingDataTable = costingModule.getReceivedItems(company_cd, po_no, receiving_receipt, control_no);
-            
+
             return "{\"aaData\":" + costingDataTable.toJsonFormat() + " , \"received_total\":" + costingDataTable.getTotalCostReceived() + " }";
         }
         catch (Exception ex)
@@ -6381,7 +6381,7 @@ public class masterfile : System.Web.Services.WebService
         {
             String connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
             CostingModule costingModule = new CostingModule(connectionString);
-            EndingInventoryDataTable costingDataTable = costingModule.getIssuedItemsByReceivedEntry(selected_row);
+            EndingInventoryDataTable costingDataTable = costingModule.getIssuedItemsByReceiptingDetails(selected_row);
 
             return "{\"aaData\":" + costingDataTable.toJsonFormat() + "}";
         }

@@ -120,7 +120,7 @@
 
                 <div class="col-sm-4">
                     <div class="right">
-                        <b>Received Total: </b>
+                        <b>Receipting Total: </b>
                         &#8369<span id="received_total"></span>
                     </div>
                 </div>
@@ -138,11 +138,10 @@
                 <div class="col-sm-4">
                     <div class="right">
 
-                        <!-- <b>Issuance Total:</b>  &#8369<span id="issuance_total"></span>-->
+                    <!--   <b>Issuance Total:</b>  &#8369<span id="issuance_total"></span>-->
 
                     </div>
                 </div>
-
 
             </div>
 

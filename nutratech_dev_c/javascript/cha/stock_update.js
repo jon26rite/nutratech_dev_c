@@ -175,10 +175,14 @@ function InitTable() {
                     var json = jQuery.parseJSON(msg.d);
                     fnCallback(json);
                     var receipting_total = json.received_total;
-                    var issuance_total = json.issuance_total;
+                    var issuance_total = json.issued_total;
                     $('#received_total').text(receipting_total).formatCurrency({
                         symbol: ""
                     });
+                    /*
+                    $('#issuance_total').text(issuance_total).formatCurrency({
+                        symbol: ""
+                    });*/
                 }
             })
         },

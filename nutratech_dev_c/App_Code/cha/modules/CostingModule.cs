@@ -71,7 +71,7 @@ namespace cha.modules
             return costingDataTable;
         }
 
-        public EndingInventoryDataTable getIssuedItemsByReceivedEntry(Dictionary<string, string> selected_row)
+        public EndingInventoryDataTable getIssuedItemsByReceiptingDetails(Dictionary<string, string> selected_row)
         {
             EndingInventoryDataTable costingDataTable = new EndingInventoryDataTable();
             if (connectionString != null)
@@ -81,8 +81,8 @@ namespace cha.modules
 
                     SqlDataAdapter adapter = new SqlDataAdapter("sp_inventory_stock_list", connection);
                     adapter.SelectCommand.Parameters.AddWithValue("@companyCd", selected_row["company_cd"]);
-                    adapter.SelectCommand.Parameters.AddWithValue("@receivingReceipt", selected_row["receiving_receipt"] );
-                    adapter.SelectCommand.Parameters.AddWithValue("@controlNo", selected_row["control_no"] );
+                    adapter.SelectCommand.Parameters.AddWithValue("@receivingReceipt", '%' + selected_row["receiving_receipt"] + '%');
+                    adapter.SelectCommand.Parameters.AddWithValue("@controlNo", '%' + selected_row["control_no"] + '%');
                     adapter.SelectCommand.Parameters.AddWithValue("@warehouseCd", '%' + selected_row["warehouse_cd"] + '%');
                     adapter.SelectCommand.Parameters.AddWithValue("@itemCd", '%' + selected_row["item_cd"] + '%');
                     adapter.SelectCommand.Parameters.AddWithValue("@itemTypeCd", '%' + selected_row["item_type_cd"] + '%');
@@ -109,8 +109,9 @@ namespace cha.modules
         
 
     
-        public EndingInventoryDataTable getReceivedItemsByReceiptingDetails(Dictionary<string, string> selected_row)
+        public bool isRowUpdateValid(Dictionary<string, string> selected_row)
         {
+            bool result = false;
             EndingInventoryDataTable costingDataTable = new EndingInventoryDataTable();
             if (connectionString != null)
             {
@@ -136,18 +137,24 @@ namespace cha.modules
                 if (costingDataTable.Rows.Count > 1)
                 {
                     System.Diagnostics.Debug.WriteLine("Found records with the same receipting details under po_no: " + selected_row["po_no"] + ". Unit cost cannot be updated.");
+                    result = false;
                     throw new System.InvalidOperationException("Found records with the same receipting details  (RR No: "+selected_row["receiving_receipt"]+", Item: "+selected_row["item_descs"]+", Control No: "+selected_row["control_no"]+", Lot No: "+selected_row["lot_no"]+"). Unit cost cannot be updated.");
+                }
+                else
+                {
+                    result = true;
                 }
                 
             }
             else
             {
                 //throw exception here when connection string is not set...
+                result = false;
                 throw new System.InvalidOperationException("Connection string for this module is not yet set.");
             }
 
 
-            return costingDataTable;
+            return result;
         }
 
 
@@ -181,8 +188,8 @@ namespace cha.modules
                         command.Parameters.AddWithValue("@itemClassCd", item_class_cd);
                         command.Parameters.AddWithValue("@itemCategoryCd", item_category_cd);
                         command.Parameters.AddWithValue("@receivingReceipt",  receiving_receipt);
-                        command.Parameters.AddWithValue("@controlNo", control_no);
-                        command.Parameters.AddWithValue("@lotNo", lot_no);
+                        command.Parameters.AddWithValue("@controlNo", control_no==null?(object)DBNull.Value : control_no);
+                        command.Parameters.AddWithValue("@lotNo", lot_no == null ? (object)DBNull.Value : lot_no);
                         command.Parameters.AddWithValue("@warehouseCd", warehouse_cd);
                         command.Parameters.AddWithValue("@docNo", '%'+doc_no+'%');
                       
@@ -227,28 +234,22 @@ namespace cha.modules
                 {
                         using (connection = new SqlConnection(connectionString))
                         {
-
-                            if (by_doc_no != 1)
+                            if (isRowUpdateValid(selected_row))
                             {
-                                receivedItemsDataTable = this.getReceivedItemsByReceiptingDetails(selected_row);
                                 System.Diagnostics.Debug.WriteLine("Scanning received items");
-                                foreach (DataRow dr in receivedItemsDataTable.Rows)
+                                System.Diagnostics.Debug.WriteLine("RECEIVED ITEM: " + selected_row["item_descs"].ToString());
+                                if (by_doc_no != 1)
                                 {
-                                    System.Diagnostics.Debug.WriteLine("RECEIVED ITEM: " + dr["item_descs"].ToString());
-                                    EndingInventoryDataTable issuedItemsDataTable = new EndingInventoryDataTable();
-                                    string received_rr = dr["receiving_receipt"].ToString();
-                                    string received_qc_no = dr["control_no"].ToString();
-                                    string received_lot_no = dr["lot_no"].ToString();
-                                    string received_warehouse = dr["warehouse_cd"].ToString();
 
-                                    this.updateUnitCostByReceiptingDetails(unit_cost, company_cd, item_cd, item_type_cd, item_class_cd, item_category_cd, received_rr, received_qc_no, received_lot_no, received_warehouse, "");
-                                    System.Diagnostics.Debug.WriteLine("RECEIVED " + dr["item_descs"].ToString() + " UNIT COST UPDATED");
+                                    updateUnitCostByReceiptingDetails(unit_cost, company_cd, item_cd, item_type_cd, item_class_cd, item_category_cd, receiving_receipt, control_no, lot_no, warehouse_cd, "");
+                                  
+                                }
+                                else
+                                {
+                                    updateUnitCostByReceiptingDetails(unit_cost, company_cd, item_cd, item_type_cd, item_class_cd, item_category_cd, receiving_receipt, control_no, lot_no, warehouse_cd, doc_no);
                                 }
                             }
-                            else
-                            {
-                                updateUnitCostByReceiptingDetails(unit_cost, company_cd, item_cd, item_type_cd, item_class_cd, item_category_cd, receiving_receipt, control_no, lot_no, warehouse_cd, doc_no);
-                            }
+                           
                            
                         }
                   
