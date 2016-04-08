@@ -152,6 +152,15 @@ function InitTable() {
         "bServerSide": false,
         "bAutoWidth": false,
         "sAjaxSource": webservicepath + "/GetTableData_Cost",
+        "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+          //  console.log(aData)
+            switch(aData.unit_cost){
+                case 0:
+                    $(nRow).css('background-color', 'rgba(255, 224, 224, 0.68);')
+                    break;
+                
+            }
+        },
         "fnServerData": function (sSource, aoData, fnCallback) {
 
             var poNo = $('#ContentPlaceHolder1_DD_Po_No option:selected').val();
@@ -371,6 +380,15 @@ function table_slider() {
                                 fnCallback(json);
                             }
                         })
+                    },
+                    "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                        //  console.log(aData)
+                        switch (aData.unit_cost) {
+                            case 0:
+                                $(nRow).css('background-color', 'rgba(255, 224, 224, 0.68);')
+                                break;
+
+                        }
                     },
                     "fnDrawCallback": function (oSettings) {
                         // $(oSettings.nTHead).hide();
