@@ -47,16 +47,16 @@ namespace cha.modules
                    
                     SqlDataAdapter adapter = new SqlDataAdapter("sp_inventory_stock_list", connection);
                     adapter.SelectCommand.Parameters.AddWithValue("@companyCd", company_cd);
-                    adapter.SelectCommand.Parameters.AddWithValue("@poNo", '%' + po_no + '%');
-                    adapter.SelectCommand.Parameters.AddWithValue("@receivingReceipt", '%' + receiving_receipt + '%');
-                    adapter.SelectCommand.Parameters.AddWithValue("@controlNo", '%' + control_no + '%');
+                    adapter.SelectCommand.Parameters.AddWithValue("@poNo",  po_no );
+                    adapter.SelectCommand.Parameters.AddWithValue("@receivingReceipt", receiving_receipt );
+                    adapter.SelectCommand.Parameters.AddWithValue("@controlNo", control_no);
                     adapter.SelectCommand.Parameters.AddWithValue("@inOutMode", "I");
                     //the following parameters are not necessary for getting the received entries
                     adapter.SelectCommand.Parameters.AddWithValue("@itemCd", '%' + "" + '%');
                     adapter.SelectCommand.Parameters.AddWithValue("@itemTypeCd", '%' + "" + '%');
                     adapter.SelectCommand.Parameters.AddWithValue("@itemClassCd", '%' + "" + '%');
                     adapter.SelectCommand.Parameters.AddWithValue("@itemCategoryCd", '%' + "" + '%');
-                    adapter.SelectCommand.Parameters.AddWithValue("@lotNo", '%' + "" + '%');
+                    adapter.SelectCommand.Parameters.AddWithValue("@lotNo", '%'+""+'%' );
                     adapter.SelectCommand.Parameters.AddWithValue("@warehouseCd", '%' + "" + '%');
                     adapter.SelectCommand.CommandType = CommandType.StoredProcedure;
                     adapter.Fill(costingDataTable);
@@ -81,14 +81,14 @@ namespace cha.modules
 
                     SqlDataAdapter adapter = new SqlDataAdapter("sp_inventory_stock_list", connection);
                     adapter.SelectCommand.Parameters.AddWithValue("@companyCd", selected_row["company_cd"]);
-                    adapter.SelectCommand.Parameters.AddWithValue("@receivingReceipt", '%' + selected_row["receiving_receipt"] + '%');
-                    adapter.SelectCommand.Parameters.AddWithValue("@controlNo", '%' + selected_row["control_no"] + '%');
+                    adapter.SelectCommand.Parameters.AddWithValue("@receivingReceipt", selected_row["receiving_receipt"] );
+                    adapter.SelectCommand.Parameters.AddWithValue("@controlNo", selected_row["control_no"] );
                     adapter.SelectCommand.Parameters.AddWithValue("@warehouseCd", '%' + selected_row["warehouse_cd"] + '%');
                     adapter.SelectCommand.Parameters.AddWithValue("@itemCd", '%' + selected_row["item_cd"] + '%');
                     adapter.SelectCommand.Parameters.AddWithValue("@itemTypeCd", '%' + selected_row["item_type_cd"] + '%');
                     adapter.SelectCommand.Parameters.AddWithValue("@itemClassCd", '%' + selected_row["item_class_cd"] + '%');
                     adapter.SelectCommand.Parameters.AddWithValue("@itemCategoryCd", '%' + selected_row["item_category_cd"] + '%');
-                    adapter.SelectCommand.Parameters.AddWithValue("@lotNo", '%' + selected_row["lot_no"] + '%');
+                    adapter.SelectCommand.Parameters.AddWithValue("@lotNo", '%' +selected_row["lot_no"] + '%');
                     adapter.SelectCommand.Parameters.AddWithValue("@inOutMode", '%' + "O" + '%');
                     //the following parameters are not necessary to get the issuance entries
                     adapter.SelectCommand.Parameters.AddWithValue("@poNo", '%' + "" + '%');

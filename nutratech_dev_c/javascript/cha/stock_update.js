@@ -7,31 +7,22 @@ $(document).ready(function () {
     addNewInputType();
     InitTable();
     table_slider();
+    setDropDownCssClass();
+    bindDropDownList();
+  
 
-    $("#ContentPlaceHolder1_DD_Po_No").select2({
-        containerCssClass: 'tpx-select2-container',
-        dropdownCssClass: 'tpx-select2-drop'
+   
+
+    $('#date').keyup(function () {
+        var d = $(this).val() // get the current value of the input field.
+
+        if (!isValidDate(d)) {
+            $('#btnViewReport').addClass("disabled");
+        } else {
+            $('#btnViewReport').removeClass("disabled");
+        }
     });
 
-    $("#ContentPlaceHolder1_DD_RR_No").select2({
-        containerCssClass: 'tpx-select2-container',
-        dropdownCssClass: 'tpx-select2-drop'
-    });
-
-    $("#ContentPlaceHolder1_DD_Control_No").select2({
-        containerCssClass: 'tpx-select2-container',
-        dropdownCssClass: 'tpx-select2-drop'
-    });
-
-    $("select[id*='DD_Po_No']").bind("change", function () {
-            oTable.api().ajax.reload();
-    });
-    $("select[id*='DD_RR_No']").bind("change", function () {
-            oTable.api().ajax.reload();
-    });
-    $("select[id*='DD_Control_No']").bind("change", function () {
-            oTable.api().ajax.reload();
-    });
 
     $('#btnViewReport').on('click', function () {
 
@@ -79,9 +70,51 @@ $(document).ready(function () {
         dayNamesMin: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
         changeMonth: true,
         changeYear: true,
-        yearRange: '-5:+20'
+        yearRange: '-5:+20',
+        onSelect: function (d, i) {
+         
+            if (isValidDate(d)) {
+                $('#btnViewReport').removeClass("disabled");
+            }
+        }
     });
 });
+
+
+function bindDropDownList() {
+    $("select[id*='DD_Po_No']").bind("change", function () {
+        oTable.api().ajax.reload();
+    });
+    $("select[id*='DD_RR_No']").bind("change", function () {
+        oTable.api().ajax.reload();
+    });
+    $("select[id*='DD_Control_No']").bind("change", function () {
+        oTable.api().ajax.reload();
+    });
+}
+
+function setDropDownCssClass() {
+    $("#ContentPlaceHolder1_DD_Po_No").select2({
+        containerCssClass: 'tpx-select2-container',
+        dropdownCssClass: 'tpx-select2-drop'
+    });
+
+    $("#ContentPlaceHolder1_DD_RR_No").select2({
+        containerCssClass: 'tpx-select2-container',
+        dropdownCssClass: 'tpx-select2-drop'
+    });
+
+    $("#ContentPlaceHolder1_DD_Control_No").select2({
+        containerCssClass: 'tpx-select2-container',
+        dropdownCssClass: 'tpx-select2-drop'
+    });
+}
+
+
+function isValidDate(dateString) {
+    var regEx = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/;
+    return dateString.match(regEx) != null;
+}
 
 //add new input type in the editable plugin
 function addNewInputType() {
@@ -229,7 +262,9 @@ function InitTable() {
 
 function UpdateData(sentObject) {
    
-
+    if (sentObject.value == '') {
+        sentObject.value = 0;
+    }
     var DTO = {
         value : sentObject.value,
         selected_row: sentObject.rowData,

@@ -59,7 +59,7 @@ public partial class stock : System.Web.UI.Page
         {
             ListItem listItem = new ListItem();
             listItem.Text = "All";
-            listItem.Value = "";
+            listItem.Value = "%";
             DataTable dtDocNum = new DataTable();
             String selection = "";
             string queryString = "";
@@ -72,13 +72,15 @@ public partial class stock : System.Web.UI.Page
                                             stock_card.company_cd = @companyCd and 
                                             stock_card.po_no LIKE @poNo and
                                            stock_card.po_no NOT LIKE '' and
-                                            stock_card.status = 'Approved'
+                                            stock_card.status = 'Approved' and
+                                            stock_card.inout_mode = 'I'
                                         UNION
                                      SELECT DISTINCT stock_card_posted.po_no from stock_card_posted
                                         WHERE
                                             stock_card_posted.company_cd = @companyCd and 
                                             stock_card_posted.po_no LIKE @poNo and
-                                           stock_card_posted.po_no NOT LIKE ''
+                                           stock_card_posted.po_no NOT LIKE '' and
+                                             stock_card_posted.inout_mode = 'I'
                                         order by po_no asc;";
                     break;
                 case "DD_RR_No":
