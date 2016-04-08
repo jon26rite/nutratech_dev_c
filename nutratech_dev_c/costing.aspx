@@ -211,7 +211,7 @@
 
 
                 <div class="modal-footer">
-                    <button type="button" id="btnViewReport" class="btn btn-sm btn-success"><span class="fa fa-print fa-fw" aria-hidden="true"></span>Generate Report</button>
+                    <button type="button" id="btnViewReport" class="btn btn-sm btn-success disabled  "><span class="fa fa-print fa-fw" aria-hidden="true"></span>Generate Report</button>
                     <button type="button" class="btn btn-sm btn-warning" data-dismiss="modal"><i class="fa fa-remove fa-fw"></i>Close</button>
                 </div>
             </div>
