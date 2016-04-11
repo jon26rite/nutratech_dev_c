@@ -105,60 +105,42 @@ namespace cha.modules
 
             return costingDataTable;
         }
-    
-        
 
-    
-        public bool isRowUpdateValid(Dictionary<string, string> selected_row)
-        {
-            bool result = false;
-            EndingInventoryDataTable costingDataTable = new EndingInventoryDataTable();
+
+
+        public EndingInventoryDataTable getSameRows(Dictionary<string, string> selected_row) {
+            EndingInventoryDataTable resultTable = new EndingInventoryDataTable();
+
             if (connectionString != null)
             {
                 using (connection = new SqlConnection(connectionString))
                 {
-                   
-                    SqlDataAdapter adapter = new SqlDataAdapter("sp_inventory_stock_list", connection);
+                    SqlDataAdapter adapter = new SqlDataAdapter("sp_inventory_costing_get_same_rows", connection);
                     adapter.SelectCommand.Parameters.AddWithValue("@companyCd", selected_row["company_cd"]);
-                    adapter.SelectCommand.Parameters.AddWithValue("@poNo", '%' + selected_row["po_no"] + '%');
-                    adapter.SelectCommand.Parameters.AddWithValue("@receivingReceipt", '%' + selected_row["receiving_receipt"] + '%');
-                    adapter.SelectCommand.Parameters.AddWithValue("@controlNo", '%' + selected_row["control_no"] + '%');
+                   // adapter.SelectCommand.Parameters.AddWithValue("@poNo", '%' + selected_row["po_no"] + '%');
+                    adapter.SelectCommand.Parameters.AddWithValue("@receivingReceipt", selected_row["receiving_receipt"]);
+                    adapter.SelectCommand.Parameters.AddWithValue("@controlNo", selected_row["control_no"] );
                     adapter.SelectCommand.Parameters.AddWithValue("@inOutMode", "I");
-                    adapter.SelectCommand.Parameters.AddWithValue("@itemCd", '%' + selected_row["item_cd"] + '%');
-                    adapter.SelectCommand.Parameters.AddWithValue("@itemTypeCd", '%' + selected_row["item_type_cd"] + '%');
-                    adapter.SelectCommand.Parameters.AddWithValue("@itemClassCd", '%' + selected_row["item_class_cd"] + '%');
-                    adapter.SelectCommand.Parameters.AddWithValue("@itemCategoryCd", '%' + selected_row["item_category_cd"] + '%');
-                    adapter.SelectCommand.Parameters.AddWithValue("@lotNo", '%' + selected_row["lot_no"] + '%');
-                    adapter.SelectCommand.Parameters.AddWithValue("@warehouseCd", '%' + selected_row["warehouse_cd"] + '%');
+                    adapter.SelectCommand.Parameters.AddWithValue("@itemCd", "%");
+                    adapter.SelectCommand.Parameters.AddWithValue("@itemTypeCd", "%");
+                    adapter.SelectCommand.Parameters.AddWithValue("@itemClassCd", "%");
+                    adapter.SelectCommand.Parameters.AddWithValue("@itemCategoryCd", "%");
+                   adapter.SelectCommand.Parameters.AddWithValue("@lotNo", '%' + selected_row["lot_no"] + '%');
+                    adapter.SelectCommand.Parameters.AddWithValue("@warehouseCd", selected_row["warehouse_cd"]);
                     adapter.SelectCommand.CommandType = CommandType.StoredProcedure;
-                    adapter.Fill(costingDataTable);
+                    adapter.Fill(resultTable);
                 }
-
-                if (costingDataTable.Rows.Count > 1)
-                {
-                    System.Diagnostics.Debug.WriteLine("Found records with the same receipting details under po_no: " + selected_row["po_no"] + ". Unit cost cannot be updated.");
-                    result = false;
-                    throw new System.InvalidOperationException("Found records with the same receipting details  (RR No: "+selected_row["receiving_receipt"]+", Item: "+selected_row["item_descs"]+", Control No: "+selected_row["control_no"]+", Lot No: "+selected_row["lot_no"]+"). Unit cost cannot be updated.");
-                }
-                else
-                {
-                    result = true;
-                }
-                
+              
             }
             else
             {
-                //throw exception here when connection string is not set...
-                result = false;
+                
                 throw new System.InvalidOperationException("Connection string for this module is not yet set.");
             }
-
-
-            return result;
+            return resultTable;
         }
+     
 
-
-      
 
         private void updateUnitCostByReceiptingDetails(decimal unit_cost,string company_cd,  
             string item_cd,
@@ -234,23 +216,20 @@ namespace cha.modules
                 {
                         using (connection = new SqlConnection(connectionString))
                         {
-                            if (isRowUpdateValid(selected_row))
-                            {
                                 System.Diagnostics.Debug.WriteLine("Scanning received items");
                                 System.Diagnostics.Debug.WriteLine("RECEIVED ITEM: " + selected_row["item_descs"].ToString());
                                 if (by_doc_no != 1)
                                 {
-
+                                  
                                     updateUnitCostByReceiptingDetails(unit_cost, company_cd, item_cd, item_type_cd, item_class_cd, item_category_cd, receiving_receipt, control_no, lot_no, warehouse_cd, "");
                                   
                                 }
                                 else
                                 {
+                                    System.Diagnostics.Debug.WriteLine("updating by doc no unit cost :" + unit_cost);
                                     updateUnitCostByReceiptingDetails(unit_cost, company_cd, item_cd, item_type_cd, item_class_cd, item_category_cd, receiving_receipt, control_no, lot_no, warehouse_cd, doc_no);
                                 }
-                            }
-                           
-                           
+                         
                         }
                   
                 }

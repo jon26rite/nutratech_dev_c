@@ -205,6 +205,15 @@
                             </asp:DropDownList>
                         </div>
                     </div>
+                     <div class="row xrow">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-addon span-addon-pw" style="color: #286090; text-align: left;">Highlight Unit Cost : </span>
+                            <asp:DropDownList ID="HighLight" CssClass="form-control" runat="server">
+                                <asp:ListItem Value="true" Selected="True">Enable</asp:ListItem>
+                                <asp:ListItem Value="false">Disable</asp:ListItem>
+                            </asp:DropDownList>
+                        </div>
+                    </div>
 
                 </div>
 
@@ -212,6 +221,34 @@
                 <div class="modal-footer">
                     <button type="button" id="btnViewReport" class="btn btn-sm btn-success disabled  "><span class="fa fa-print fa-fw" aria-hidden="true"></span>Generate Report</button>
                     <button type="button" class="btn btn-sm btn-warning" data-dismiss="modal"><i class="fa fa-remove fa-fw"></i>Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="ConfirmUpdateModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title"><i class="fa fa-exclamation-triangle fa-fw"></i>Warning</h4>
+                </div>
+                <div class="modal-body">
+                    <h4>Found entries with the same RR No and Control No. Click 'OK' to continue.</h4>
+                     <div class="row xrow dataTable_wrapper">
+                <table id="same_rows_table" class="display table-bordered table-hover table-font item_report">
+                    <thead class="GridHeader" />
+                </table>
+            </div>
+
+                   
+
+                </div>
+
+
+                <div class="modal-footer">
+                    <button type="button" id="btn_update_yes" class="btn btn-sm btn-primary " style="width:100px;">OK</button>
+                    <button type="button" class="btn btn-sm btn-secondary " style="width:100px;" data-dismiss="modal">Cancel</button>
                 </div>
             </div>
         </div>

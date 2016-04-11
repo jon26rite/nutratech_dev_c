@@ -3,6 +3,7 @@ var oTable;
 
 
 
+
 $(document).ready(function () {
     addNewInputType();
     InitTable();
@@ -32,7 +33,9 @@ $(document).ready(function () {
                 //  months: monthsArray,
                 as_of_date: $('#date').val(),
                 report_details: $('#ContentPlaceHolder1_DD_Report_Details option:selected').val(),
-                item_category_descs : $('#ContentPlaceHolder1_DD_Item_Category option:selected').text()
+                item_category_descs: $('#ContentPlaceHolder1_DD_Item_Category option:selected').text(),
+                hightlight: $('#ContentPlaceHolder1_HighLight option:selected').val()
+
             }
 
             var values = { values: queryString };
@@ -169,7 +172,7 @@ function InitTable() {
             var company_cd = $('#DD_UserCompany option:selected').val()
 
             $.ajax({
-                "async":'false',
+                "async": true,
                 "dataType": 'json',
                 "contentType": "application/json; charset=utf-8",
                 "type": "GET",
@@ -183,6 +186,7 @@ function InitTable() {
                 "success": function (msg) {
                     var json = jQuery.parseJSON(msg.d);
                     fnCallback(json);
+
                     var receipting_total = json.received_total;
                     var issuance_total = json.issued_total;
                     $('#received_total').text(receipting_total).formatCurrency({
@@ -193,7 +197,9 @@ function InitTable() {
                         symbol: ""
                     });*/
                 }
-            })
+            });
+
+           
         },
 
         "aoColumns": [
@@ -236,45 +242,135 @@ function InitTable() {
                  {
                      indicator: 'Saving ...',
                      tooltip: 'Click to edit',
-                     onsubmit: function (settings, original) {
-                         disableConfirmation = true;//confirmation is disabled
-                     },
-                     callback: function (sValue, settings) {
-
-                     },
+                  
+                     callback: function (sValue, settings) {},
                      onblur: 'cancel',
                      type: 'numeric',
                      sUpdateURL: function (value, settings) {
-                         var sentObject = {};
                          var rowId = oTable.fnGetPosition(this)[0];
                          // var columnId = oTable.fnGetPosition(this)[2];
                          var rowData = oTable.fnGetData(rowId);
+                       
+                         var sentObject = {};
                          sentObject["value"] = value;
                          sentObject["rowData"] = rowData;
                          sentObject["byDocNo"] = 0;
 
-
-                         if (disableConfirmation == true) {
-                             if (UpdateData(sentObject) == 1) {
-                                 return value;
-                             }
-
-                             else { return rowData.unit_cost; }
-                         }
-                         else {
-                             alert("update is not allowed");
-                             return rowData.unit_cost
+                         if (getSameRows(sentObject) == 1) {
+                             return value;
+                         } else {
+                             return rowData.unit_cost;
                          }
                      }
                  }  //unit_cost
         ]
     });
 
+   
+}
 
+
+
+function getSameRows(sentObject) {
+  
+    var DTO = {
+        selected_row: sentObject.rowData 
+    };
+
+    var rows_length;
+    var value = sentObject.value;
+
+    var sameRowsTable = $('#same_rows_table').dataTable({
+        "bStateSave": false,
+        "bLengthChange": false,
+        "filter": false,
+        "responsive": true,
+        "orderClasses": false,
+        "info": false,
+        "scrollY": "auto",
+        "scrollX": "100%",
+        "scrollCollapse": true,
+        "bProcessing": true,
+        "bPaginate": false,
+        "bDestroy": true,
+        "bServerSide": false,
+        "bAutoWidth": false,
+        "sAjaxSource": webservicepath + "/GetSameRows",
+        "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+            
+            item_cd_match = aData.complete_item_cd == sentObject.rowData.complete_item_cd;
+            rr_match = aData.receiving_receipt == sentObject.rowData.receiving_receipt;
+            control_match = aData.control_no == sentObject.rowData.control_no;
+            warehouse_match = aData.warehouse_cd == sentObject.rowData.warehouse_cd;
+            lot_match = aData.lot_no == sentObject.rowData.lot_no;
+            if (!(item_cd_match && rr_match && control_match && warehouse_match && lot_match)) {
+                $(nRow).css('background-color', 'rgba(255, 224, 224, 0.68);')
+            }
+            else {
+                $(nRow).css('background-color', 'rgba(72,250,101,0.64);')
+                
+            }
+        },
+        "fnServerData": function (sSource, aoData, fnCallback) {
+            $.ajax({
+                "async": true,
+                "dataType": 'json',
+                "contentType": "application/json; charset=utf-8",
+                "type": "POST",
+                "url": sSource,
+                "data": JSON.stringify(DTO),
+                "success": function (msg) {
+                    var json = jQuery.parseJSON(msg.d);
+                    fnCallback(json);
+                }
+            }).done(function (data) {
+               
+                var rows_length = sameRowsTable.fnSettings().fnRecordsTotal();
+                if (rows_length > 1) {
+                    $('#ConfirmUpdateModal').modal('show');
+                    $('#btn_update_yes').unbind("click", UpdateData(sentObject));
+                    $('#btn_update_yes').click(function () {
+                        $('#btn_update_yes').bind("click", UpdateData(sentObject));
+                        $('#ConfirmUpdateModal').modal('hide');
+                        $('#btn_update_yes').unbind("click", UpdateData(sentObject));
+                        return 1;
+                    });
+                } else {
+                    $('#btn_update_yes').unbind("click", UpdateData(sentObject));
+                    return 1;
+                }
+            })
+        },
+      
+
+        "aoColumns": [
+            {
+                "mDataProp": "complete_item_cd", "sTitle": "Item Code",
+                "sWidth": "100px"
+            },
+            { "mDataProp": "item_descs", "sTitle": "Item Description", "sWidth": "210px" },
+            { "mDataProp": "qty", "sTitle": "Quantity", "sWidth": "60px" },
+            { "mDataProp": "c_uom_conversion", "sTitle": "UOM", "sWidth": "60px" },
+            { "mDataProp": "unit_cost", "sTitle": "Unit Cost", "sWidth": "60px" },
+            { "mDataProp": "total_cost", "sTitle": "Total Cost", "sWidth": "60px" },
+            { "mDataProp": "receiving_receipt", "sTitle": "RR No.", "sWidth": "60px" },
+            { "mDataProp": "control_no", "sTitle": "Control No.", "sWidth": "60px" },
+            { "mDataProp": "po_no", "sTitle": "PO No.", "sWidth": "60px" },
+              { "mDataProp": "warehouse_name", "sTitle": "Warehouse", "sWidth": "150px" },
+            { "mDataProp": "status", "sTitle": "Status", "sWidth": "100px" },
+            { "mDataProp": "doc_no", "sTitle": "Document No.", "sWidth": "80px" },
+            { "mDataProp": "doc_date", "sTitle": "Document Date", "sWidth": "80px" },
+            { "mDataProp": "stk_descs", "sTitle": "Description", "sWidth": "200px" },
+            { "mDataProp": "lot_no", "sTitle": "Lot No", "sWidth": "80px" },
+            { "mDataProp": "mfg_date", "sTitle": "Mfg. Date", "sWidth": "80px" },
+            { "mDataProp": "expiry_date", "sTitle": "Expiry Date", "sWidth": "80px" }
+        ]
+    });
+    return 0;
 }
 
 function UpdateData(sentObject) {
-   
+    
     if (sentObject.value == '') {
         sentObject.value = 0;
     }

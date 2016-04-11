@@ -192,26 +192,23 @@ namespace cha.utils
          
             if (ReportType == EndingInventoryDataTable.Details.Summarized)
             {
-              
-                    
-
-
                     if (existingDataRow == null)
                     {
                         this.Rows.Add(eiRow);
                         existingDataRow = eiRow;
                     }
 
-                    decimal qty = Convert.ToDecimal(existingDataRow.qty);
-                    decimal uom_conversion_factor = Convert.ToDecimal(existingDataRow.uom_conversion_factor);
-                    decimal total_received = existingDataRow.total_received;
-                    decimal total_issued = existingDataRow.total_issued;
+                   // decimal qty = Convert.ToDecimal(existingDataRow.qty);
+                   // decimal uom_conversion_factor = Convert.ToDecimal(existingDataRow.uom_conversion_factor);
+                   // decimal total_received = existingDataRow.total_received;
+                   // decimal total_issued = existingDataRow.total_issued;
                    
                     if (eiRow.inout_mode == "I")
                     {
                         
-                        total_received = (qty * (1 / uom_conversion_factor));
-                        existingDataRow.total_received = total_received;
+                        //total_received = (qty * (1 / uom_conversion_factor));
+                       // existingDataRow.total_received = total_received;
+                        existingDataRow.total_received += (eiRow.qty * (1 / eiRow.uom_conversion_factor));
                     }
                     else
                     {
@@ -250,6 +247,7 @@ namespace cha.utils
                     conditions_match = conditions_match && receiving_receipt_match;
                     conditions_match = conditions_match && mfg_date_match;
                     conditions_match = conditions_match && expiry_date_match;
+                /*
                     if (conditions_match && is_not_valid)
                     {
                         throw new System.InvalidOperationException("Cannot generate ending inventory report. All records must have unique receipting details (RR No: "+row.receiving_receipt+", Item: "+row.item_descs+", Control No: "+row.control_no+", Lot No: "+row.lot_no+")");
@@ -258,7 +256,11 @@ namespace cha.utils
                     {
                         return dr;
                     }
-                        
+                        */
+                    if (conditions_match)
+                    {
+                        return dr;
+                    }
               
             }
 
@@ -319,24 +321,6 @@ namespace cha.utils
             return JsonString;
             
 
-            /*
-            JavaScriptSerializer jsSerializer = new JavaScriptSerializer();
-           // jsSerializer.MaxJsonLength = Int32.MaxValue;
-            List<Dictionary<string, object>> parentRow = new List<Dictionary<string, object>>();
-            Dictionary<string, object> childRow;
-            foreach (DataRow row in table.Rows)
-            {
-                childRow = new Dictionary<string, object>();
-                foreach (DataColumn col in table.Columns)
-                {
-                    childRow.Add(col.ColumnName, row[col]);
-                }
-                parentRow.Add(childRow);
-            }
-
-            var json = jsSerializer.Serialize(parentRow);
-            
-            return json;  */
         }
 
   

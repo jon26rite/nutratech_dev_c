@@ -6398,6 +6398,28 @@ public class masterfile : System.Web.Services.WebService
 
     [WebMethod(EnableSession = true)]
     [ScriptMethod(ResponseFormat = ResponseFormat.Json, UseHttpGet = false)]
+    public string GetSameRows(Dictionary<string, string> selected_row)
+    {
+        try
+        {
+            String connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
+            CostingModule costingModule = new CostingModule(connectionString);
+            EndingInventoryDataTable costingDataTable = costingModule.getSameRows(selected_row);
+
+            return "{\"aaData\":" + costingDataTable.toJsonFormat() + "}";
+        }
+
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine("error: " + ex.Message);
+            Context.Response.StatusCode = (int)System.Net.HttpStatusCode.InternalServerError;
+            Context.Response.StatusDescription = ex.Message;
+            return null;
+        }
+    }
+
+    [WebMethod(EnableSession = true)]
+    [ScriptMethod(ResponseFormat = ResponseFormat.Json, UseHttpGet = false)]
     public void UpdateStockCardUnitCost(Dictionary<string, string> selected_row, decimal value, int by_doc_no)
     {
 

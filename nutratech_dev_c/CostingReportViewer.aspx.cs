@@ -40,6 +40,7 @@ public partial class CostingReportViewer : System.Web.UI.Page
             DateTime as_of_date = Convert.ToDateTime(Request.QueryString["as_of_date"].ToString());
             string item_category_descs = Request.QueryString["item_category_descs"].ToString();
             int report_details = Convert.ToInt32(Request.QueryString["report_details"].ToString());
+            bool highlight = Convert.ToBoolean(Request.QueryString["hightlight"].ToString());
 
             String connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
 
@@ -94,6 +95,7 @@ public partial class CostingReportViewer : System.Web.UI.Page
             cryRpt.ParameterFields["year"].CurrentValues.AddValue("change this year");
             cryRpt.ParameterFields["date"].CurrentValues.AddValue(as_of_date.ToString("MMM-dd-yyyy"));
             cryRpt.ParameterFields["item_category_descs"].CurrentValues.AddValue(item_category_descs);
+            cryRpt.ParameterFields["highlight_enabled"].CurrentValues.AddValue(highlight);
             
             cryRpt.ExportOptions.ExportDestinationType = ExportDestinationType.DiskFile;
             cryRpt.ExportOptions.ExportFormatType = ExportFormatType.Excel;
