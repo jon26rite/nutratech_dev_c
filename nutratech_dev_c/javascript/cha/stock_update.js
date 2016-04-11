@@ -255,10 +255,12 @@ function InitTable() {
                          sentObject["value"] = value;
                          sentObject["rowData"] = rowData;
                          sentObject["byDocNo"] = 0;
-
-                         if (getSameRows(sentObject) == 1) {
+                         var update_confirmed = getSameRows(sentObject)
+                         if (update_confirmed == 1) {
+                             console.log(update_confirmed)
                              return value;
                          } else {
+                             console.log(update_confirmed)
                              return rowData.unit_cost;
                          }
                      }
@@ -279,7 +281,7 @@ function getSameRows(sentObject) {
 
     var rows_length;
     var value = sentObject.value;
-
+    var result = 0;
     var sameRowsTable = $('#same_rows_table').dataTable({
         "bStateSave": false,
         "bLengthChange": false,
@@ -328,16 +330,16 @@ function getSameRows(sentObject) {
                 var rows_length = sameRowsTable.fnSettings().fnRecordsTotal();
                 if (rows_length > 1) {
                     $('#ConfirmUpdateModal').modal('show');
-                    $('#btn_update_yes').unbind("click", UpdateData(sentObject));
+                  //  $('#btn_update_yes').unbind("click", UpdateData(sentObject));
                     $('#btn_update_yes').click(function () {
-                        $('#btn_update_yes').bind("click", UpdateData(sentObject));
+                       // $('#btn_update_yes').bind("click", UpdateData(sentObject));
                         $('#ConfirmUpdateModal').modal('hide');
                         $('#btn_update_yes').unbind("click", UpdateData(sentObject));
-                        return 1;
+                        result = 1;
                     });
                 } else {
                     $('#btn_update_yes').unbind("click", UpdateData(sentObject));
-                    return 1;
+                    result = 1;
                 }
             })
         },
@@ -366,7 +368,7 @@ function getSameRows(sentObject) {
             { "mDataProp": "expiry_date", "sTitle": "Expiry Date", "sWidth": "80px" }
         ]
     });
-    return 0;
+    return result;
 }
 
 function UpdateData(sentObject) {
