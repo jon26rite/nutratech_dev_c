@@ -118,15 +118,15 @@ namespace cha.modules
                     SqlDataAdapter adapter = new SqlDataAdapter("sp_inventory_costing_get_same_rows", connection);
                     adapter.SelectCommand.Parameters.AddWithValue("@companyCd", selected_row["company_cd"]);
                    // adapter.SelectCommand.Parameters.AddWithValue("@poNo", '%' + selected_row["po_no"] + '%');
-                    adapter.SelectCommand.Parameters.AddWithValue("@receivingReceipt", selected_row["receiving_receipt"]);
+                  //  adapter.SelectCommand.Parameters.AddWithValue("@receivingReceipt", selected_row["receiving_receipt"]);
                     adapter.SelectCommand.Parameters.AddWithValue("@controlNo", selected_row["control_no"] );
                     adapter.SelectCommand.Parameters.AddWithValue("@inOutMode", "I");
-                    adapter.SelectCommand.Parameters.AddWithValue("@itemCd", "%");
-                    adapter.SelectCommand.Parameters.AddWithValue("@itemTypeCd", "%");
-                    adapter.SelectCommand.Parameters.AddWithValue("@itemClassCd", "%");
-                    adapter.SelectCommand.Parameters.AddWithValue("@itemCategoryCd", "%");
-                   adapter.SelectCommand.Parameters.AddWithValue("@lotNo", '%' + selected_row["lot_no"] + '%');
-                    adapter.SelectCommand.Parameters.AddWithValue("@warehouseCd", selected_row["warehouse_cd"]);
+                 //   adapter.SelectCommand.Parameters.AddWithValue("@itemCd", "%");
+                  //  adapter.SelectCommand.Parameters.AddWithValue("@itemTypeCd", "%");
+                 //   adapter.SelectCommand.Parameters.AddWithValue("@itemClassCd", "%");
+                 //   adapter.SelectCommand.Parameters.AddWithValue("@itemCategoryCd", "%");
+                 //  adapter.SelectCommand.Parameters.AddWithValue("@lotNo", '%' + selected_row["lot_no"] + '%');
+                 //   adapter.SelectCommand.Parameters.AddWithValue("@warehouseCd", selected_row["warehouse_cd"]);
                     adapter.SelectCommand.CommandType = CommandType.StoredProcedure;
                     adapter.Fill(resultTable);
                 }
@@ -157,9 +157,6 @@ namespace cha.modules
                 if (connectionString != null) {
                     using (connection = new SqlConnection(connectionString))
                     {
-                        
-                     
-                        
                         SqlCommand command = new SqlCommand("sp_inventory_update_unit_cost", connection);
                         command.CommandType = CommandType.StoredProcedure;
                         

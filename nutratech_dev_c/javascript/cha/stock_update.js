@@ -156,7 +156,6 @@ function InitTable() {
         "bAutoWidth": false,
         "sAjaxSource": webservicepath + "/GetTableData_Cost",
         "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-          //  console.log(aData)
             switch(aData.unit_cost){
                 case 0:
                     $(nRow).css('background-color', 'rgba(255, 224, 224, 0.68);')
@@ -227,7 +226,7 @@ function InitTable() {
             { "mDataProp": "status", "sTitle": "Status", "sWidth": "100px" },
             { "mDataProp": "doc_no", "sTitle": "Document No.", "sWidth": "80px" },
             { "mDataProp": "doc_date", "sTitle": "Document Date", "sWidth": "80px" },
-            { "mDataProp": "stk_descs", "sTitle": "Description", "sWidth": "100px" },
+            { "mDataProp": "stk_descs", "sTitle": "Description", "sWidth": "200px" },
             { "mDataProp": "lot_no", "sTitle": "Lot No", "sWidth": "80px" },
             { "mDataProp": "mfg_date", "sTitle": "Mfg. Date", "sWidth": "80px" },
             { "mDataProp": "expiry_date", "sTitle": "Expiry Date", "sWidth": "80px" }
@@ -257,10 +256,8 @@ function InitTable() {
                          sentObject["byDocNo"] = 0;
                          var update_confirmed = getSameRows(sentObject)
                          if (update_confirmed == 1) {
-                             console.log(update_confirmed)
                              return value;
                          } else {
-                             console.log(update_confirmed)
                              return rowData.unit_cost;
                          }
                      }
@@ -305,7 +302,7 @@ function getSameRows(sentObject) {
             control_match = aData.control_no == sentObject.rowData.control_no;
             warehouse_match = aData.warehouse_cd == sentObject.rowData.warehouse_cd;
             lot_match = aData.lot_no == sentObject.rowData.lot_no;
-            if (!(item_cd_match && rr_match && control_match && warehouse_match && lot_match)) {
+            if (!(item_cd_match && control_match && warehouse_match && lot_match)) {
                 $(nRow).css('background-color', 'rgba(255, 224, 224, 0.68);')
             }
             else {
@@ -330,7 +327,7 @@ function getSameRows(sentObject) {
                 var rows_length = sameRowsTable.fnSettings().fnRecordsTotal();
                 if (rows_length > 1) {
                     $('#ConfirmUpdateModal').modal('show');
-                  //  $('#btn_update_yes').unbind("click", UpdateData(sentObject));
+                    $('#btn_update_yes').unbind();
                     $('#btn_update_yes').click(function () {
                        // $('#btn_update_yes').bind("click", UpdateData(sentObject));
                         $('#ConfirmUpdateModal').modal('hide');
@@ -480,7 +477,6 @@ function table_slider() {
                         })
                     },
                     "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                        //  console.log(aData)
                         switch (aData.unit_cost) {
                             case 0:
                                 $(nRow).css('background-color', 'rgba(255, 224, 224, 0.68);')
@@ -489,7 +485,6 @@ function table_slider() {
                         }
                     },
                     "fnDrawCallback": function (oSettings) {
-                        // $(oSettings.nTHead).hide();
                     },
 
                     "aoColumns": [
@@ -515,7 +510,7 @@ function table_slider() {
                     { "mDataProp": "status", "sTitle": "Status", "sWidth": "100px" },
                     { "mDataProp": "doc_no", "sTitle": "Document No.", "sWidth": "80px" },
                     { "mDataProp": "doc_date", "sTitle": "Document Date", "sWidth": "80px" },
-                    { "mDataProp": "stk_descs", "sTitle": "Description", "sWidth": "100px" },
+                    { "mDataProp": "stk_descs", "sTitle": "Description", "sWidth": "200px" },
                     { "mDataProp": "lot_no", "sTitle": "Lot No", "sWidth": "80px" },
                     { "mDataProp": "mfg_date", "sTitle": "Mfg. Date", "sWidth": "80px" },
                     { "mDataProp": "expiry_date", "sTitle": "Expiry Date", "sWidth": "80px" }

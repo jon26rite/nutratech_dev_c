@@ -234,7 +234,7 @@
                     <h4 class="modal-title"><i class="fa fa-exclamation-triangle fa-fw"></i>Warning</h4>
                 </div>
                 <div class="modal-body">
-                    <h4>Found entries with the same RR No and Control No. Click 'OK' to continue.</h4>
+                    <h4>Found entries with the same Control No. Click 'OK' to continue.</h4>
                      <div class="row xrow dataTable_wrapper">
                 <table id="same_rows_table" class="display table-bordered table-hover table-font item_report">
                     <thead class="GridHeader" />
