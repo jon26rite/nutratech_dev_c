@@ -23,6 +23,8 @@ using System.Net;
 using cha.modules;
 using cha.utils;
 using ClosedXML.Excel;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 
 /// <summary>
@@ -6504,6 +6506,1384 @@ public class masterfile : System.Web.Services.WebService
 
     }
 
+
+
+    #endregion
+
+    #region Motor Pool
+
+    [WebMethod(EnableSession = true)]
+    public List<ListItemDTO> getDropDownListItems(String Obj)
+    {
+
+        List<ListItemDTO> items = new List<ListItemDTO>();
+        String sql = "";
+        switch (Obj)
+        {
+            case "#ContentPlaceHolder1_DropDownListItemClass":
+                sql = @"SELECT [code],[descs] FROM [Nutratech_DB].[dbo].[item_class];";
+                break;
+            case "#ContentPlaceHolder1_DropDownListItemType":
+                sql = @"SELECT [code],[descs] FROM [Nutratech_DB].[dbo].[item_type] Order by code;";
+                break;
+            case "#ContentPlaceHolder1_DropDownListItemCategory":
+                sql = @"SELECT [code],[descs] FROM [Nutratech_DB].[dbo].[item_category];";
+                break;
+            case "#ContentPlaceHolder1_DropDownListCompany":
+                sql = @"SELECT [CompanyCode],[DatabaseName],[CompanyName]FROM [NB-COMMON].[dbo].[COMPANY]
+                                WHERE DatabaseName != 'DB_100' AND DatabaseName != 'DB_QA';;";
+                break;
+            case "#ContentPlaceHolder1_DD_vehicle_plate_number":
+                sql = @"SELECT [name],[descs],[plate_no]    
+                                FROM [Nutratech_DB].[dbo].[vehicle]";
+                break;
+            case "#ContentPlaceHolder1_DD_driver_username":
+                sql = @"SELECT [username],[name]      
+                                FROM [Nutratech_DB].[dbo].[cf_users]";
+                break;
+            case "#ContentPlaceHolder1_va_DD_accessory_group":
+                sql = @"SELECT [code],[descs],[audit_user],[audit_date]
+                                FROM [Nutratech_DB].[dbo].[accessory_group]";
+                break;
+            case "#ContentPlaceHolder1_DD_accessory_group":
+                sql = @"SELECT [code],[descs],[audit_user],[audit_date]
+                                FROM [Nutratech_DB].[dbo].[accessory_group]";
+                break;
+            case "#ContentPlaceHolder1_DD_accessory":
+                sql = @"SELECT [code],[descs],[audit_user],[audit_date]
+                                FROM [Nutratech_DB].[dbo].[accessory]";
+                break;
+            case "#ContentPlaceHolder1_DD_service_type":
+                sql = @"SELECT [code],[descs],[audit_user],[audit_date]
+                                FROM [Nutratech_DB].[dbo].[service_type]";
+                break;
+            case "#ContentPlaceHolder1_DD_product_uom":
+                sql = @"SELECT [code],[descs],[audit_user],[audit_date],[status]
+                                FROM [Nutratech_DB].[dbo].[item_uom]";
+                break;
+            case "#ContentPlaceHolder1_DD_uom":
+                sql = @"SELECT [code],[descs],[audit_user],[audit_date],[status]
+                                FROM [Nutratech_DB].[dbo].[item_uom]";
+                break;
+            case "#ContentPlaceHolder1_DD_product_cd":
+                sql = @"SELECT [item_cd],[descs],[uom],[item_type_cd],[item_category_cd],
+                                        [remarks],[standard_cost],[latest_cost],[item_weight],
+                                        [audit_user],[audit_date],[item_class_cd],[status]
+                                FROM [Nutratech_DB].[dbo].[item]
+                                WHERE item_class_cd = '02';";
+                break;
+            case "#ContentPlaceHolder1_DD_product":
+                sql = @"SELECT [item_cd],[descs],[uom],[item_type_cd],[item_category_cd],
+                                        [remarks],[standard_cost],[latest_cost],[item_weight],
+                                        [audit_user],[audit_date],[item_class_cd],[status]
+                                FROM [Nutratech_DB].[dbo].[item]
+                                WHERE item_class_cd = '02';";
+                break;
+
+        }
+
+        SqlConnection cn = new SqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString);
+        SqlCommand cmd = new SqlCommand(sql, cn);
+        SqlDataReader dtr;
+        cn.Open();
+        dtr = cmd.ExecuteReader();
+        while (dtr.Read())
+        {
+            if (Obj == "#ContentPlaceHolder1_DropDownListCompany")
+                items.Add(new ListItemDTO
+                {
+                    code = dtr["DatabaseName"].ToString().Trim(),
+                    descs = dtr["CompanyName"].ToString().Trim()
+                });
+            else if (Obj == "#ContentPlaceHolder1_DD_vehicle_plate_number")
+                items.Add(new ListItemDTO
+                {
+                    code = dtr["plate_no"].ToString().Trim(),
+                    descs = dtr["name"].ToString().Trim()
+                });
+            else if (Obj == "#ContentPlaceHolder1_DD_driver_username")
+                items.Add(new ListItemDTO
+                {
+                    code = dtr["username"].ToString().Trim(),
+                    descs = dtr["name"].ToString().Trim()
+                });
+            else if (Obj == "#ContentPlaceHolder1_DD_product_cd")
+                items.Add(new ListItemDTO
+                {
+                    code = dtr["item_cd"].ToString().Trim(),
+                    descs = dtr["descs"].ToString().Trim()
+                });
+            else if (Obj == "#ContentPlaceHolder1_DD_product")
+                items.Add(new ListItemDTO
+                {
+                    code = dtr["item_cd"].ToString().Trim(),
+                    descs = dtr["descs"].ToString().Trim()
+                });
+            else
+                items.Add(new ListItemDTO
+                {
+                    code = dtr["code"].ToString().Trim(),
+                    descs = dtr["descs"].ToString().Trim()
+                });
+        }
+        cn.Close();
+        cn.Dispose();
+        return items;
+    }
+    
+    [WebMethod(EnableSession = true)]
+    public String insertVehicleLog(VehicleLogDTO vehicleLogDTO)
+    {
+
+        SqlConnection cn = new SqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString);
+        cn.Open();
+
+        var audit_date = DateTime.Now;
+        double result = 0;
+
+        VehicleLogDTO lastVehicleLog = getLastVehicleLog(vehicleLogDTO.vehicle_plate_no);
+
+        if (lastVehicleLog.date != null)
+        {
+            if (vehicleLogDTO.odometer < lastVehicleLog.odometer)
+            {
+                return "<span style='color:red'>Odometer must be greater than the last odometer : " + lastVehicleLog.odometer + " KM </span>";
+            }
+
+            if (vehicleLogDTO.date.Replace("undefined", string.Empty) == string.Empty ||
+                DateTime.Parse(vehicleLogDTO.date).Date <= DateTime.Parse(lastVehicleLog.date).Date)
+            {
+                return "<span style='color:red'>date must be greater than the last vehicle log date : " + DateTime.Parse(lastVehicleLog.date).Date.ToString("MMM/dd/yyyy") + " waa </span>";
+            }
+        }
+        if (vehicleLogDTO.full_tank == "True")
+        {
+            var current_gas_price = vehicleLogDTO.total_cost / vehicleLogDTO.total_gas;
+            var current_total_gas_liter = vehicleLogDTO.total_cost / current_gas_price;
+
+            result = vehicleLogDTO.odometer / current_total_gas_liter;
+
+            vehicleLogDTO.result = result;
+        }
+        vehicleLogDTO.result = result;
+        String sql = @"INSERT INTO [dbo].[vehicle_log]
+                           ([vehicle_plate_no]
+                           ,[odometer]
+                           ,[last_fuel_price]
+                           ,[total_gas]
+                           ,[total_cost]
+                           ,[date]
+                           ,[full_tank]
+                           ,[result]
+                           ,[driver_username]
+                           ,[audit_user]
+                           ,[audit_date])
+                     VALUES
+                           (@vehicle_plate_no
+                           ,@odometer
+                           ,@last_fuel_price
+                           ,@total_gas
+                           ,@total_cost
+                           ,@date
+                           ,@full_tank
+                           ,@result
+                           ,@driver_username
+                           ,@audit_user
+                           ,@audit_date)";
+
+        SqlCommand cmd = new SqlCommand(sql, cn);
+        try
+        {
+            JavaScriptSerializer jscript = new JavaScriptSerializer();
+            System.Diagnostics.Debug.WriteLine("vehicleLogDTO : " + jscript.Serialize(vehicleLogDTO));
+            cmd.Parameters.AddWithValue("vehicle_plate_no", vehicleLogDTO.vehicle_plate_no);
+            cmd.Parameters.AddWithValue("odometer", vehicleLogDTO.odometer);
+            cmd.Parameters.AddWithValue("last_fuel_price", vehicleLogDTO.last_fuel_price);
+            cmd.Parameters.AddWithValue("total_gas", vehicleLogDTO.total_gas);
+            cmd.Parameters.AddWithValue("total_cost", vehicleLogDTO.total_cost);
+            cmd.Parameters.AddWithValue("date", vehicleLogDTO.date);
+            cmd.Parameters.AddWithValue("full_tank", vehicleLogDTO.full_tank);
+            cmd.Parameters.AddWithValue("result", vehicleLogDTO.result);
+            cmd.Parameters.AddWithValue("driver_username", vehicleLogDTO.driver_username);
+            cmd.Parameters.AddWithValue("audit_user", vehicleLogDTO.audit_user);
+            cmd.Parameters.AddWithValue("audit_date", vehicleLogDTO.audit_date);
+
+            cmd.ExecuteNonQuery();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine("the exception is : " + ex.Message);
+            return "<span style='color:red'>Please input the required values...</span>";
+        }
+
+        return "";
+    }
+
+    public string DataTableToJSONWithJSONNet(DataTable table)
+    {
+        string JsonString = string.Empty;
+        JsonString = JsonConvert.SerializeObject(table, Formatting.None, new IsoDateTimeConverter() { DateTimeFormat = "MM/dd/yyyy" });
+        return JsonString;
+    }
+
+    [WebMethod(EnableSession = true)]
+    public List<VehicleLogDTO> getVehicleLogs(String vehicle_plate_no)
+    {
+        List<VehicleLogDTO> vehicleLogs = new List<VehicleLogDTO>();
+
+        String sql = @"SELECT [vehicle_plate_no]
+                              ,[odometer]
+                              ,[last_fuel_price]
+                              ,[total_gas]
+                              ,[total_cost]
+                              ,[date]
+                              ,[full_tank]
+                              ,[result]
+                              ,[driver_username]
+                              ,[audit_user]
+                              ,[audit_date]
+                      FROM [Nutratech_DB].[dbo].[vehicle_log]
+                      WHERE vehicle_plate_no =@vehicle_plate_no order by 'date' desc;";
+
+        SqlConnection cn = new SqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString);
+        SqlCommand cmd = new SqlCommand(sql, cn);
+
+        cmd.Parameters.AddWithValue("vehicle_plate_no", vehicle_plate_no);
+
+        SqlDataReader dtr;
+        cn.Open();
+        dtr = cmd.ExecuteReader();
+
+        while (dtr.Read())
+        {
+            System.Diagnostics.Debug.WriteLine("and full_tank gkan sa db kai : " + dtr["full_tank"].ToString().Trim());
+            vehicleLogs.Add(new VehicleLogDTO
+            {
+                vehicle_plate_no = dtr["vehicle_plate_no"].ToString().Trim(),
+                odometer = Convert.ToDouble(dtr["odometer"].ToString().Trim()),
+                last_fuel_price = Convert.ToDouble(dtr["last_fuel_price"].ToString().Trim()),
+                total_gas = Convert.ToDouble(dtr["total_gas"].ToString().Trim()),
+                total_cost = Convert.ToDouble(dtr["total_cost"].ToString().Trim()),
+                date = DateTime.Parse(dtr["date"].ToString().Trim()).ToString("MM/dd/yyyy"),
+                full_tank = dtr["full_tank"].ToString().Trim(),
+                result = Convert.ToDouble(dtr["result"].ToString().Trim()),
+                driver_username = dtr["driver_username"].ToString().Trim(),
+                audit_user = dtr["audit_user"].ToString().Trim(),
+                audit_date = dtr["audit_date"].ToString().Trim()
+
+            });
+        }
+        dtr.Close();
+        cn.Close();
+        return vehicleLogs;
+    }
+
+    [WebMethod(EnableSession = true)]
+    public double getLastFuelPrice(String vehicle_plate_no)
+    {
+        double last_fuel_price = 0;
+
+        String sql = @"SELECT TOP 1 [vehicle_plate_no]
+                              ,[odometer]
+                              ,[last_fuel_price]
+                              ,[total_gas]
+                              ,[total_cost]
+                              ,[date]
+                              ,[full_tank]
+                              ,[result]
+                              ,[driver_username]
+                              ,[audit_user]
+                              ,[audit_date]
+                      FROM [Nutratech_DB].[dbo].[vehicle_log]
+                      WHERE vehicle_plate_no =@vehicle_plate_no order by 'date' desc;";
+
+        SqlConnection cn = new SqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString);
+        SqlCommand cmd = new SqlCommand(sql, cn);
+
+        cmd.Parameters.AddWithValue("vehicle_plate_no", vehicle_plate_no);
+
+        SqlDataReader dtr;
+        cn.Open();
+        dtr = cmd.ExecuteReader();
+
+        while (dtr.Read())
+        {
+            var total_cost = Convert.ToDouble(dtr["total_cost"].ToString().Trim());
+            var total_gas = Convert.ToDouble(dtr["total_gas"].ToString().Trim());
+
+            last_fuel_price = total_cost / total_gas;
+        }
+        dtr.Close();
+        cn.Close();
+        return last_fuel_price;
+    }
+
+    [WebMethod(EnableSession = true)]
+    public VehicleLogDTO getLastVehicleLog(String vehicle_plate_no)
+    {
+        VehicleLogDTO lastVehicleLog = new VehicleLogDTO();
+
+        String sql = @"SELECT TOP 1 [vehicle_plate_no]
+                              ,[odometer]
+                              ,[last_fuel_price]
+                              ,[total_gas]
+                              ,[total_cost]
+                              ,[date]
+                              ,[full_tank]
+                              ,[result]
+                              ,[driver_username]
+                              ,[audit_user]
+                              ,[audit_date]
+                      FROM [Nutratech_DB].[dbo].[vehicle_log]
+                      WHERE vehicle_plate_no =@vehicle_plate_no order by 'date' desc;";
+
+        SqlConnection cn = new SqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString);
+        SqlCommand cmd = new SqlCommand(sql, cn);
+
+        cmd.Parameters.AddWithValue("vehicle_plate_no", vehicle_plate_no);
+
+        SqlDataReader dtr;
+        cn.Open();
+        dtr = cmd.ExecuteReader();
+
+        while (dtr.Read())
+        {
+            lastVehicleLog.vehicle_plate_no = dtr["vehicle_plate_no"].ToString().Trim();
+            lastVehicleLog.odometer = Convert.ToDouble(dtr["odometer"].ToString().Trim());
+            lastVehicleLog.last_fuel_price = Convert.ToDouble(dtr["last_fuel_price"].ToString().Trim());
+            lastVehicleLog.total_gas = Convert.ToDouble(dtr["total_gas"].ToString().Trim());
+            lastVehicleLog.total_cost = Convert.ToDouble(dtr["total_cost"].ToString().Trim());
+            lastVehicleLog.date = dtr["date"].ToString().Trim();
+            lastVehicleLog.full_tank = dtr["full_tank"].ToString().Trim();
+            lastVehicleLog.result = Convert.ToDouble(dtr["result"].ToString().Trim());
+            lastVehicleLog.driver_username = dtr["driver_username"].ToString().Trim();
+            lastVehicleLog.audit_user = dtr["audit_user"].ToString().Trim();
+            lastVehicleLog.audit_date = dtr["audit_date"].ToString().Trim();
+        }
+        dtr.Close();
+        cn.Close();
+        return lastVehicleLog;
+    }
+
+
+    [WebMethod(EnableSession = true)]
+    [ScriptMethod(ResponseFormat = ResponseFormat.Json, UseHttpGet = true)]
+    public string GetVehicleImage(string plate_no)
+    {
+        string sql = "";
+        String connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
+        using (SqlConnection con = new SqlConnection(connectionString))
+        {
+
+            sql = @"SELECT vehicle.image,
+                           vehicle_user.assigned_to,
+                           vehicle.plate_no,
+                           vehicle_user.date_assigned 
+                           FROM vehicle LEFT JOIN vehicle_user on vehicle.plate_no = vehicle_user.vehicle_plate_no 
+                           where vehicle.plate_no = @plate_no;";
+
+            DataTable dataTable = new DataTable();
+            SqlDataAdapter adapter = new SqlDataAdapter(sql, con);
+            adapter.SelectCommand.Parameters.AddWithValue("@plate_no", plate_no);
+            adapter.Fill(dataTable);
+            foreach (DataRow dr in dataTable.Rows)
+            {
+                dr["image"] = dr["image"].ToString().Trim();
+                dr["assigned_to"] = dr["assigned_to"].ToString().Trim();
+                dr["plate_no"] = dr["plate_no"].ToString().Trim();
+                // dr["date_assigned"] = dr["date_assigned"] == (object)DBNull.Value ? "" : Convert.ToDateTime(dr["date_assigned"]).ToString("MM/dd/yyyy");
+            }
+            return DataTableToJSONWithJSONNet(dataTable);
+        }
+
+
+    }
+
+    [WebMethod(EnableSession = true)]
+    [ScriptMethod(ResponseFormat = ResponseFormat.Json, UseHttpGet = true)]
+    public string GetVehicleList()
+    {
+        string sql = "";
+        string selected_attr = "";
+        String connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
+        using (SqlConnection con = new SqlConnection(connectionString))
+        {
+            selected_attr += "name, descs, model_year, color, plate_no, insurance_policy_no, seater_capacity, ";
+            selected_attr += "fuel_type, fuel_unit, distance_unit, location";
+
+            sql += "SELECT " + selected_attr + " FROM vehicle";
+
+            DataTable dataTable = new DataTable();
+            SqlDataAdapter adapter = new SqlDataAdapter(sql, con);
+
+            adapter.Fill(dataTable);
+
+            foreach (DataRow dr in dataTable.Rows)
+            {
+                dr["name"] = dr["name"].ToString().Trim();
+                dr["descs"] = dr["descs"].ToString().Trim();
+                dr["model_year"] = dr["model_year"].ToString().Trim();
+                dr["color"] = dr["color"].ToString().Trim();
+                dr["plate_no"] = dr["plate_no"].ToString().Trim();
+                dr["insurance_policy_no"] = dr["insurance_policy_no"].ToString().Trim();
+                dr["seater_capacity"] = Convert.ToInt32(dr["seater_capacity"]);
+                dr["fuel_type"] = dr["fuel_type"].ToString().Trim();
+                dr["fuel_unit"] = dr["fuel_unit"].ToString().Trim();
+                dr["distance_unit"] = dr["distance_unit"].ToString().Trim();
+                dr["location"] = dr["location"].ToString().Trim();
+
+            }
+            String jsonData = DataTableToJSONWithJSONNet(dataTable);
+            return "{\"aaData\":" + jsonData + "}";
+            // return jsonData;
+        }
+
+    }
+
+    [WebMethod(EnableSession = true)]
+    [ScriptMethod(ResponseFormat = ResponseFormat.Json, UseHttpGet = false)]
+    public void InsertVehicleUser(string plate_no, string assigned_to, string date_assigned)
+    {
+        string sql = "";
+
+        String connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
+        using (SqlConnection connection = new SqlConnection(connectionString))
+        {
+
+            sql += "INSERT INTO vehicle_user (vehicle_plate_no, assigned_to, date_assigned, audit_user, audit_date) ";
+            sql += "VALUES (@plate_no, @assigned_to, @date_assigned, @audit_user, @audit_date);";
+            SqlCommand command = new SqlCommand(sql, connection);
+            command.Parameters.AddWithValue("@plate_no", plate_no);
+            command.Parameters.AddWithValue("@assigned_to", assigned_to);
+            command.Parameters.AddWithValue("@date_assigned", date_assigned == "" ? (object)DBNull.Value : System.DateTime.Parse(date_assigned));
+            command.Parameters.AddWithValue("@audit_user", HttpContext.Current.Session["username"].ToString());
+            command.Parameters.AddWithValue("@audit_date", Convert.ToDateTime(DateTime.Now));
+
+            try
+            {
+                connection.Open();
+                Int32 rowsAffected = command.ExecuteNonQuery();
+                System.Diagnostics.Debug.WriteLine("RowsAffected: {0}", rowsAffected);
+                connection.Close();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("error: " + ex.Message);
+            }
+        }
+
+
+
+    }
+
+    [WebMethod(EnableSession = true)]
+    [ScriptMethod(ResponseFormat = ResponseFormat.Json, UseHttpGet = false)]
+    public string InsertVehicle(string name, string descs, string model_year, string color, string plate_no,
+        string insurance_policy_no, int seater_capacity, string fuel_type, string location, string distance_unit,
+        string fuel_unit, string image)
+    {
+
+
+        string sql = "";
+        String connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
+        using (SqlConnection connection = new SqlConnection(connectionString))
+        {
+            sql += "INSERT INTO VEHICLE ";
+            sql += "(name, descs, model_year, color, plate_no, insurance_policy_no, seater_capacity, ";
+            sql += "fuel_type, location, audit_user, audit_date, distance_unit, fuel_unit, image) ";
+            sql += "VALUES ";
+            sql += "(@name, @descs, @modelYear, @color, @plateNo, @insurancePoNo, @seaterCap, ";
+            sql += "@fuelType, @location, @auditUser, @auditDate, @distanceUnit, @fuelUnit, @image);";
+            SqlCommand command = new SqlCommand(sql, connection);
+
+            command.Parameters.AddWithValue("@name", name);
+            command.Parameters.AddWithValue("@descs", descs == "" ? (object)DBNull.Value : descs);
+            command.Parameters.AddWithValue("@modelYear", model_year == "" ? (object)DBNull.Value : model_year);
+            command.Parameters.AddWithValue("@color", color == "" ? (object)DBNull.Value : color);
+            command.Parameters.AddWithValue("@plateNo", plate_no == "" ? (object)DBNull.Value : plate_no);
+            command.Parameters.AddWithValue("@insurancePoNo", insurance_policy_no == "" ? (object)DBNull.Value : insurance_policy_no);
+            command.Parameters.AddWithValue("@seaterCap", seater_capacity);
+            command.Parameters.AddWithValue("@fuelType", fuel_type == "" ? (object)DBNull.Value : fuel_type);
+            command.Parameters.AddWithValue("@location", location == "" ? (object)DBNull.Value : location);
+            command.Parameters.AddWithValue("@distanceUnit", distance_unit == "" ? (object)DBNull.Value : distance_unit);
+            command.Parameters.AddWithValue("@fuelUnit", fuel_unit == "" ? (object)DBNull.Value : fuel_unit);
+            command.Parameters.AddWithValue("@auditUser", HttpContext.Current.Session["username"].ToString());
+            command.Parameters.AddWithValue("@auditDate", Convert.ToDateTime(DateTime.Now));
+            command.Parameters.AddWithValue("@image", image == "" ? (object)DBNull.Value : image);
+
+
+            try
+            {
+                connection.Open();
+                Int32 rowsAffected = command.ExecuteNonQuery();
+                System.Diagnostics.Debug.WriteLine("RowsAffected: {0}", rowsAffected);
+                connection.Close();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("error: " + ex.Message);
+            }
+            return "";
+        }
+
+    }
+
+    [WebMethod(EnableSession = true)]
+    public String saveAccessory(String code, String descs, String group_cd, String audit_user, bool is_new_entry)
+    {
+        if (code.Replace("undefined", string.Empty) == string.Empty)
+        {
+            return "<span style='color:red'>Please input the required values...</span>";
+
+        }
+        if (descs.Replace("undefined", string.Empty) == string.Empty)
+        {
+            return "<span style='color:red'>Please input the required values...</span>";
+
+        }
+
+        var audit_date = DateTime.Now;
+
+        if (is_new_entry)
+        {
+            string checkSql = "SELECT [code],[descs],[group_cd],[audit_user],[audit_date]FROM [Nutratech_DB].[dbo].[accessory]" + " WHERE (code = '" + code + "') ";
+            //& " WHERE (descs = '" & xdescs.Replace("'", "''").Trim & "')"
+            SqlConnection cn = new SqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString);
+            SqlCommand command = new SqlCommand(checkSql, cn);
+            SqlDataReader dtr = default(SqlDataReader);
+
+            cn.Open();
+            dtr = command.ExecuteReader();
+            bool sfind = false;
+            if (dtr.Read())
+            {
+                sfind = true;
+            }
+            cn.Close();
+
+
+            if (sfind == false)
+            {
+                cn.Open();
+
+                String sql = @"INSERT INTO [dbo].[accessory]
+                           ([code]
+                           ,[descs]
+                           ,[group_cd]
+                           ,[audit_user]
+                           ,[audit_date])
+                     VALUES
+                           (@code
+                           ,@descs
+                           ,@group_cd                          
+                           ,@audit_user
+                           ,@audit_date)";
+
+                SqlCommand cmd = new SqlCommand(sql, cn);
+                try
+                {
+                    JavaScriptSerializer jscript = new JavaScriptSerializer();
+
+                    cmd.Parameters.AddWithValue("code", code);
+                    cmd.Parameters.AddWithValue("descs", descs);
+                    cmd.Parameters.AddWithValue("group_cd", group_cd);
+                    cmd.Parameters.AddWithValue("audit_user", audit_user);
+                    cmd.Parameters.AddWithValue("audit_date", audit_date);
+
+                    cmd.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine("the exception is : " + ex.Message);
+                    return "<span style='color:red'>Please input the required values...</span>";
+                }
+                cn.Close();
+                cn.Dispose();
+            }
+            else
+            {
+                return "<span style='color:red'>Duplicated Record found.... <br>Code : " + code + "</span>";
+            }
+        }
+        else
+        {
+
+            string sql = @"UPDATE [dbo].[accessory]
+                           SET [descs] = @descs
+                              ,[group_cd] = @group_cd
+                              ,[audit_user] = @audit_user
+                              ,[audit_date] = @audit_date
+                         WHERE code=@code;";
+
+            SqlConnection cn = new SqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString);
+            SqlCommand cmd = new SqlCommand(sql, cn);
+            cmd.Parameters.AddWithValue("descs", descs);
+            cmd.Parameters.AddWithValue("group_cd", group_cd);
+            cmd.Parameters.AddWithValue("audit_user", audit_user);
+            cmd.Parameters.AddWithValue("audit_date", audit_date);
+            cmd.Parameters.AddWithValue("code", code);
+            cn.Open();
+            cmd.ExecuteNonQuery();
+            cn.Close();
+            cn.Dispose();
+            return "<span style='color:green'>Accessory: " + code + " Successfully Updated...</span>";
+
+        }
+        return "<span style='color:green'>Accessory Successfully Saved...</span>";
+    }
+
+    [WebMethod(EnableSession = true)]
+    public String saveAccessoryGroup(String code, String descs, String audit_user, bool is_new_entry)
+    {
+        if (code.Replace("undefined", string.Empty) == string.Empty)
+        {
+            return "<span style='color:red'>Please input the required values...</span>";
+
+        }
+        if (descs.Replace("undefined", string.Empty) == string.Empty)
+        {
+            return "<span style='color:red'>Please input the required values...</span>";
+
+        }
+
+        var audit_date = DateTime.Now;
+
+        if (is_new_entry)
+        {
+            string checkSql = "SELECT [code],[descs],[audit_user],[audit_date]FROM [Nutratech_DB].[dbo].[accessory_group]" + " WHERE (code = '" + code + "') ";
+            //& " WHERE (descs = '" & xdescs.Replace("'", "''").Trim & "')"
+            SqlConnection cn = new SqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString);
+            SqlCommand command = new SqlCommand(checkSql, cn);
+            SqlDataReader dtr = default(SqlDataReader);
+
+            cn.Open();
+            dtr = command.ExecuteReader();
+            bool sfind = false;
+            if (dtr.Read())
+            {
+                sfind = true;
+            }
+            cn.Close();
+
+
+            if (sfind == false)
+            {
+                cn.Open();
+
+                String sql = @"INSERT INTO [dbo].[accessory_group]
+                           ([code]
+                           ,[descs]
+                           ,[audit_user]
+                           ,[audit_date])
+                     VALUES
+                           (@code
+                           ,@descs                          
+                           ,@audit_user
+                           ,@audit_date)";
+
+                SqlCommand cmd = new SqlCommand(sql, cn);
+                try
+                {
+                    JavaScriptSerializer jscript = new JavaScriptSerializer();
+
+                    cmd.Parameters.AddWithValue("code", code);
+                    cmd.Parameters.AddWithValue("descs", descs);
+                    cmd.Parameters.AddWithValue("audit_user", audit_user);
+                    cmd.Parameters.AddWithValue("audit_date", audit_date);
+
+                    cmd.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine("the exception is : " + ex.Message);
+                    return "<span style='color:red'>Please input the required values...</span>";
+                }
+                cn.Close();
+                cn.Dispose();
+            }
+            else
+            {
+                return "<span style='color:red'>Duplicated Record found.... <br>Code : " + code + "</span>";
+            }
+        }
+        else
+        {
+
+            string sql = @"UPDATE [dbo].[accessory_group]
+                           SET [descs] = @descs
+                              ,[audit_user] = @audit_user
+                              ,[audit_date] = @audit_date
+                         WHERE code=@code;";
+
+            SqlConnection cn = new SqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString);
+            SqlCommand cmd = new SqlCommand(sql, cn);
+            cmd.Parameters.AddWithValue("descs", descs);
+            cmd.Parameters.AddWithValue("audit_user", audit_user);
+            cmd.Parameters.AddWithValue("audit_date", audit_date);
+            cmd.Parameters.AddWithValue("code", code);
+            cn.Open();
+            cmd.ExecuteNonQuery();
+            cn.Close();
+            cn.Dispose();
+            return "<span style='color:green'>false ang is new entry...</span>";
+
+        }
+        return "<span style='color:green'>Accessory Group Successfully Saved...</span>";
+    }
+
+    [WebMethod(EnableSession = true)]
+    [ScriptMethod(ResponseFormat = ResponseFormat.Json, UseHttpGet = true)]
+    public String getAccessoriesDT()
+    {
+        string sql = "";
+        string selected_attr = "";
+
+        List<AccessoryDTO> accessories = new List<AccessoryDTO>();
+
+        var echo = int.Parse(HttpContext.Current.Request.Params["sEcho"]);
+        var displayLength = int.Parse(HttpContext.Current.Request.Params["iDisplayLength"]);
+        var displayStart = int.Parse(HttpContext.Current.Request.Params["iDisplayStart"]);
+        var sortOrder = HttpContext.Current.Request.Params["sSortDir_0"].ToString(CultureInfo.CurrentCulture);
+        var sortCol = HttpContext.Current.Request.Params["iSortCol_0"].ToString(CultureInfo.CurrentCulture);
+
+        string search = HttpContext.Current.Request.Params["searchValue"].ToString();
+        var roleId = HttpContext.Current.Request.Params["roleId"].ToString(CultureInfo.CurrentCulture);
+        System.Diagnostics.Debug.WriteLine("the value of search is : " + search);
+        String connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
+        using (SqlConnection con = new SqlConnection(connectionString))
+        {
+            selected_attr += "code, descs, group_cd ";
+
+
+            sql += "SELECT " + selected_attr + " FROM [Nutratech_DB].[dbo].[accessory]";
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                sql += "WHERE code like '%" + search + "%' OR descs like '%" + search + "%' OR group_cd like '%" + search + "%' ";
+            }
+            DataTable dataTable = new DataTable();
+            SqlDataAdapter adapter = new SqlDataAdapter(sql, con);
+
+            adapter.Fill(dataTable);
+
+            foreach (DataRow dr in dataTable.Rows)
+            {
+                accessories.Add(new AccessoryDTO
+                {
+                    code = dr["code"].ToString().Trim(),
+                    descs = dr["descs"].ToString().Trim(),
+                    group_cd = dr["group_cd"].ToString().Trim()
+                });
+            }
+
+            var orderedResults = sortOrder == "asc"
+                              ? accessories.OrderBy(o => o.code)
+                              : accessories.OrderByDescending(o => o.code);
+
+            switch (sortCol)
+            {
+                case "0":
+                    orderedResults = sortOrder == "asc" ? accessories.OrderBy(o => o.code) : accessories.OrderByDescending(o => o.code);
+                    break;
+                case "1":
+                    orderedResults = sortOrder == "asc" ? accessories.OrderBy(o => o.descs) : accessories.OrderByDescending(o => o.descs);
+                    break;
+                case "2":
+                    orderedResults = sortOrder == "asc" ? accessories.OrderBy(o => o.group_cd) : accessories.OrderByDescending(o => o.group_cd);
+                    break;
+            }
+            var itemsToSkip = displayStart == 0
+                              ? 0
+                              : displayStart + 1;
+            var pagedResults = orderedResults.Skip(itemsToSkip).Take(displayLength).ToList();
+
+            JavaScriptSerializer ser = new JavaScriptSerializer();
+            var sb = new StringBuilder();
+            sb.Append("{");
+            sb.Append("\"sEcho\": " + echo + ",");
+            sb.Append("\"recordsTotal\": " + accessories.Count() + ",");
+            sb.Append("\"recordsFiltered\": " + accessories.Count() + ",");
+            sb.Append("\"iTotalRecords\": " + accessories.Count() + ",");
+            sb.Append("\"iTotalDisplayRecords\": " + accessories.Count() + ",");
+            sb.Append("\"aaData\": " + ser.Serialize(pagedResults));
+
+            sb.Append("}");
+
+            return sb.ToString();
+        }
+    }
+
+    [WebMethod(EnableSession = true)]
+    [ScriptMethod(ResponseFormat = ResponseFormat.Json, UseHttpGet = true)]
+    public String getAccessoryGroups()
+    {
+        string sql = "";
+        string selected_attr = "";
+        String connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
+        using (SqlConnection con = new SqlConnection(connectionString))
+        {
+            selected_attr += "code, descs ";
+
+
+            sql += "SELECT " + selected_attr + " FROM [Nutratech_DB].[dbo].[accessory_group]";
+
+            DataTable dataTable = new DataTable();
+            SqlDataAdapter adapter = new SqlDataAdapter(sql, con);
+
+            adapter.Fill(dataTable);
+
+            foreach (DataRow dr in dataTable.Rows)
+            {
+                dr["code"] = dr["code"].ToString().Trim();
+                dr["descs"] = dr["descs"].ToString().Trim();
+            }
+            String jsonData = DataTableToJSONWithJSONNet(dataTable);
+            return "{\"aaData\":" + jsonData + "}";
+        }
+    }
+
+    [WebMethod(EnableSession = true)]
+    public List<VehicleAccessoryDTO> getVehicleAccessories(String vehicle_plate_no)
+    {
+        List<VehicleAccessoryDTO> items = new List<VehicleAccessoryDTO>();
+
+        String sql = @"SELECT  [vehicle_id]
+                              ,[accessory_group]
+                              ,[accessory]
+                              ,[audit_user]
+                              ,[audit_date]
+                          FROM [Nutratech_DB].[dbo].[vehicle_accessory]
+                          WHERE vehicle_id=@vehicle_id;";
+
+        SqlConnection cn = new SqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString);
+        SqlCommand cmd = new SqlCommand(sql, cn);
+
+        cmd.Parameters.AddWithValue("vehicle_id", vehicle_plate_no);
+
+        SqlDataReader dtr;
+        cn.Open();
+        dtr = cmd.ExecuteReader();
+
+        while (dtr.Read())
+        {
+            items.Add(new VehicleAccessoryDTO
+            {
+                vehicle_id = dtr["vehicle_id"].ToString().Trim(),
+                accessory_group = dtr["accessory_group"].ToString().Trim(),
+                accessory = dtr["accessory"].ToString().Trim()
+            });
+        }
+        dtr.Close();
+        cn.Close();
+
+        return items;
+    }
+
+    [WebMethod(EnableSession = true)]
+    public List<ListItemDTO> getAccessories(String group_cd, String vehicle_plate_no, String searchString)
+    {
+
+        List<ListItemDTO> items = new List<ListItemDTO>();
+        List<VehicleAccessoryDTO> vehicleAccessories = getVehicleAccessories(vehicle_plate_no);
+
+        String sql = @"SELECT [code],[descs] 
+                            FROM [Nutratech_DB].[dbo].[accessory]
+                            WHERE group_cd=@group_cd AND (code like '%" + searchString + "%' OR descs like '%" + searchString + "%')";
+        foreach (VehicleAccessoryDTO vehicleAccessory in vehicleAccessories)
+        {
+            sql = sql + "AND descs != '" + vehicleAccessory.accessory + "' ";
+        }
+
+        SqlConnection cn = new SqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString);
+        SqlCommand cmd = new SqlCommand(sql, cn);
+
+        cmd.Parameters.AddWithValue("group_cd", group_cd);
+        // cmd.Parameters.AddWithValue("searchString", searchString);
+
+        SqlDataReader dtr;
+        cn.Open();
+        dtr = cmd.ExecuteReader();
+
+        while (dtr.Read())
+        {
+            items.Add(new ListItemDTO
+            {
+                code = dtr["code"].ToString().Trim(),
+                descs = dtr["descs"].ToString().Trim()
+            });
+        }
+        dtr.Close();
+        cn.Close();
+
+        return items;
+    }
+
+    [WebMethod(EnableSession = true)]
+    public String batchInsertToVehicleAccessory(List<ListItemDTO> items, String vehicle_plate_no, String group_cd, String audit_user)
+    {
+
+        SqlConnection cn = new SqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString);
+        cn.Open();
+
+        var audit_date = DateTime.Now;
+
+        String sql = @"INSERT INTO [dbo].[vehicle_accessory]
+                               ([vehicle_id]
+                               ,[accessory_group]
+                               ,[accessory]
+                               ,[audit_user]
+                               ,[audit_date])
+                         VALUES ";
+
+        string code = items[items.Count - 1].code;
+        foreach (ListItemDTO itemDTO in items)
+        {
+            if (code == itemDTO.code)
+                sql += "('" + vehicle_plate_no +
+                       "','" + group_cd +
+                       "','" + itemDTO.descs +
+                       "','" + audit_user +
+                       "','" + audit_date + "')";
+            else
+                sql += "('" + vehicle_plate_no +
+                       "','" + group_cd +
+                       "','" + itemDTO.descs +
+                       "','" + audit_user +
+                       "','" + audit_date + "'),";
+        }
+        System.Diagnostics.Debug.WriteLine("the slq is : " + sql);
+        SqlCommand cmd = new SqlCommand(sql, cn);
+        cmd.ExecuteNonQuery();
+        cn.Close();
+        return "";
+    }
+
+    [WebMethod(EnableSession = true)]
+    public String batchRemoveFromVehicleAccessory(List<ListItemDTO> items, String vehicle_plate_no)
+    {
+
+        String sql = "DELETE FROM [dbo].[vehicle_accessory] WHERE vehicle_id='" + vehicle_plate_no + "' ";
+
+        SqlConnection cn = new SqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString);
+
+        cn.Open();
+
+        string accessoryFirst = items[0].descs;
+        string accessoryLast = items[items.Count - 1].descs;
+        int count = items.Count;
+        foreach (ListItemDTO item in items)
+        {
+            if (count == 1)
+                sql += " AND (accessory='" + item.descs + "') ";
+            else if (accessoryFirst == item.descs)
+                sql += " AND (accessory='" + item.descs + "' OR ";
+            else if (accessoryLast == item.descs)
+                sql += " accessory='" + item.descs + "')";
+            else
+                sql += " accessory='" + item.descs + "' OR";
+        }
+
+        System.Diagnostics.Debug.WriteLine("the slq from batchRemoveFromVehicleAccessory is : " + sql);
+        SqlCommand cmd = new SqlCommand(sql, cn);
+        cmd.CommandText = sql;
+
+        cmd.ExecuteNonQuery();
+        cn.Close();
+        return "";
+    }
+
+    [WebMethod(EnableSession = true)]
+    public String saveServiceType(String code, String descs, String audit_user, bool is_new_entry)
+    {
+        if (code.Replace("undefined", string.Empty) == string.Empty)
+        {
+            return "<span style='color:red'>Please input the required values...</span>";
+
+        }
+        if (descs.Replace("undefined", string.Empty) == string.Empty)
+        {
+            return "<span style='color:red'>Please input the required values...</span>";
+
+        }
+
+        var audit_date = DateTime.Now;
+
+        if (is_new_entry)
+        {
+            string checkSql = "SELECT [code],[descs],[audit_user],[audit_date]FROM [Nutratech_DB].[dbo].[service_type]" + " WHERE (code = '" + code + "') ";
+            //& " WHERE (descs = '" & xdescs.Replace("'", "''").Trim & "')"
+            SqlConnection cn = new SqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString);
+            SqlCommand command = new SqlCommand(checkSql, cn);
+            SqlDataReader dtr = default(SqlDataReader);
+
+            cn.Open();
+            dtr = command.ExecuteReader();
+            bool sfind = false;
+            if (dtr.Read())
+            {
+                sfind = true;
+            }
+            cn.Close();
+
+
+            if (sfind == false)
+            {
+                cn.Open();
+
+                String sql = @"INSERT INTO [dbo].[service_type]
+                           ([code]
+                           ,[descs]
+                           ,[audit_user]
+                           ,[audit_date])
+                     VALUES
+                           (@code
+                           ,@descs                          
+                           ,@audit_user
+                           ,@audit_date)";
+
+                SqlCommand cmd = new SqlCommand(sql, cn);
+                try
+                {
+                    JavaScriptSerializer jscript = new JavaScriptSerializer();
+
+                    cmd.Parameters.AddWithValue("code", code);
+                    cmd.Parameters.AddWithValue("descs", descs);
+                    cmd.Parameters.AddWithValue("audit_user", audit_user);
+                    cmd.Parameters.AddWithValue("audit_date", audit_date);
+
+                    cmd.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine("the exception is : " + ex.Message);
+                    return "<span style='color:red'>Please input the required values...</span>";
+                }
+                cn.Close();
+                cn.Dispose();
+            }
+            else
+            {
+                return "<span style='color:red'>Duplicated Record found.... <br>Code : " + code + "</span>";
+            }
+        }
+        else
+        {
+
+            string sql = @"UPDATE [dbo].[service_type]
+                           SET [descs] = @descs
+                              ,[audit_user] = @audit_user
+                              ,[audit_date] = @audit_date
+                         WHERE code=@code;";
+
+            SqlConnection cn = new SqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString);
+            SqlCommand cmd = new SqlCommand(sql, cn);
+            cmd.Parameters.AddWithValue("descs", descs);
+            cmd.Parameters.AddWithValue("audit_user", audit_user);
+            cmd.Parameters.AddWithValue("audit_date", audit_date);
+            cmd.Parameters.AddWithValue("code", code);
+            cn.Open();
+            cmd.ExecuteNonQuery();
+            cn.Close();
+            cn.Dispose();
+            return "<span style='color:green'>false ang is new entry...</span>";
+
+        }
+        return "<span style='color:green'>Accessory Group Successfully Saved...</span>";
+    }
+
+    [WebMethod(EnableSession = true)]
+    [ScriptMethod(ResponseFormat = ResponseFormat.Json, UseHttpGet = true)]
+    public String getServiceTypes()
+    {
+        string sql = "";
+        string selected_attr = "";
+        String connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
+        using (SqlConnection con = new SqlConnection(connectionString))
+        {
+            selected_attr += "code, descs ";
+
+
+            sql += "SELECT " + selected_attr + " FROM [Nutratech_DB].[dbo].[service_type]";
+
+            DataTable dataTable = new DataTable();
+            SqlDataAdapter adapter = new SqlDataAdapter(sql, con);
+
+            adapter.Fill(dataTable);
+
+            foreach (DataRow dr in dataTable.Rows)
+            {
+                dr["code"] = dr["code"].ToString().Trim();
+                dr["descs"] = dr["descs"].ToString().Trim();
+            }
+            String jsonData = DataTableToJSONWithJSONNet(dataTable);
+            return "{\"aaData\":" + jsonData + "}";
+        }
+    }
+
+    [WebMethod(EnableSession = true)]
+    public String saveServiceRequest(ServiceRequestDTO ServiceRequest)
+    {
+        SqlConnection cn = new SqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString);
+        cn.Open();
+
+        var audit_date = DateTime.Now;
+
+        String sql = @"INSERT INTO [dbo].[service_request]
+                                   ([vehicle_id]
+                                   ,[mileage]
+                                   ,[driver_username]
+                                   ,[service_type]
+                                   ,[request_date]
+                                   ,[request_descs]
+                                   ,[action_taken]
+                                   ,[remarks]
+                                   ,[date_started]
+                                   ,[date_completed]
+                                   ,[audit_user]
+                                   ,[audit_date] )
+                             VALUES
+                                   (@vehicle_id
+                                   ,@mileage
+                                   ,@driver_username
+                                   ,@service_type
+                                   ,@request_date
+                                   ,@request_descs
+                                   ,@action_taken
+                                   ,@remarks
+                                   ,@date_started
+                                   ,@date_completed
+                                   ,@audit_user
+                                   ,@audit_date)";
+
+        SqlCommand cmd = new SqlCommand(sql, cn);
+        try
+        {
+            JavaScriptSerializer jscript = new JavaScriptSerializer();
+            System.Diagnostics.Debug.WriteLine("ServiceRequestDTO : " + jscript.Serialize(ServiceRequest));
+            cmd.Parameters.AddWithValue("vehicle_id", ServiceRequest.vehicle_id);
+            cmd.Parameters.AddWithValue("driver_username", ServiceRequest.driver_username);
+            cmd.Parameters.AddWithValue("mileage", ServiceRequest.mileage);
+            cmd.Parameters.AddWithValue("service_type", ServiceRequest.service_type);
+            cmd.Parameters.AddWithValue("request_date", ServiceRequest.request_date);
+            cmd.Parameters.AddWithValue("request_descs", ServiceRequest.request_descs);
+            cmd.Parameters.AddWithValue("action_taken", ServiceRequest.action_taken);
+            cmd.Parameters.AddWithValue("remarks", ServiceRequest.remarks);
+            cmd.Parameters.AddWithValue("date_started", ServiceRequest.date_started);
+            cmd.Parameters.AddWithValue("date_completed", ServiceRequest.date_completed);
+            cmd.Parameters.AddWithValue("audit_user", ServiceRequest.audit_user);
+            cmd.Parameters.AddWithValue("audit_date", audit_date);
+
+            cmd.ExecuteNonQuery();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine("the exception is : " + ex.Message);
+            return "<span style='color:red'>Please input the required values...</span>";
+        }
+
+        return "<span style='color:green'>Service Request Successfully Saved...</span>";
+    }
+
+    [WebMethod(EnableSession = true)]
+    [ScriptMethod(ResponseFormat = ResponseFormat.Json, UseHttpGet = true)]
+    public String getServiceRequestDT()
+    {
+        string sql = "";
+
+        List<ServiceRequestDTO> serviceRequests = new List<ServiceRequestDTO>();
+
+        var echo = int.Parse(HttpContext.Current.Request.Params["sEcho"]);
+        var displayLength = int.Parse(HttpContext.Current.Request.Params["iDisplayLength"]);
+        var displayStart = int.Parse(HttpContext.Current.Request.Params["iDisplayStart"]);
+        var sortOrder = HttpContext.Current.Request.Params["sSortDir_0"].ToString(CultureInfo.CurrentCulture);
+        var sortCol = HttpContext.Current.Request.Params["iSortCol_0"].ToString(CultureInfo.CurrentCulture);
+
+        string search = HttpContext.Current.Request.Params["searchValue"].ToString();
+        var roleId = HttpContext.Current.Request.Params["roleId"].ToString(CultureInfo.CurrentCulture);
+        System.Diagnostics.Debug.WriteLine("the value of search is : " + search);
+        String connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
+        using (SqlConnection con = new SqlConnection(connectionString))
+        {
+
+            sql += @"SELECT [vehicle_id],[mileage],[driver_username],[service_type]
+                           ,[request_date],[request_descs],[action_taken],[remarks]
+                           ,[date_started],[date_completed],[audit_user],[audit_date]
+                       FROM [Nutratech_DB].[dbo].[service_request]";
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                sql += "WHERE vehicle_id like '%" + search + "%' OR driver_username like '%" + search + "%' OR service_type like '%" + search + "%' ";
+                sql += "OR request_descs like '%" + search + "%' OR action_taken like '%" + search + "%' ";
+                sql += "OR remarks like '%" + search + "%' ";
+            }
+            DataTable dataTable = new DataTable();
+            SqlDataAdapter adapter = new SqlDataAdapter(sql, con);
+
+            adapter.Fill(dataTable);
+
+            foreach (DataRow dr in dataTable.Rows)
+            {
+                serviceRequests.Add(new ServiceRequestDTO
+                {
+                    vehicle_id = dr["vehicle_id"].ToString().Trim(),
+                    mileage = Convert.ToDouble(dr["mileage"].ToString().Trim()),
+                    driver_username = dr["driver_username"].ToString().Trim(),
+                    service_type = dr["service_type"].ToString().Trim(),
+                    request_date = Convert.ToDateTime(dr["request_date"].ToString().Trim()).ToShortDateString(),
+                    request_descs = dr["request_descs"].ToString().Trim(),
+                    action_taken = dr["action_taken"].ToString().Trim(),
+                    remarks = dr["remarks"].ToString().Trim(),
+                    date_started = Convert.ToDateTime(dr["date_started"].ToString().Trim()).ToShortDateString(),
+                    date_completed = Convert.ToDateTime(dr["date_completed"].ToString().Trim()).ToShortDateString()
+
+                });
+            }
+
+            var orderedResults = sortOrder == "asc"
+                              ? serviceRequests.OrderBy(o => o.request_date)
+                              : serviceRequests.OrderByDescending(o => o.request_date);
+
+            switch (sortCol)
+            {
+                case "0":
+                    orderedResults = sortOrder == "asc" ? serviceRequests.OrderBy(o => o.vehicle_id) : serviceRequests.OrderByDescending(o => o.vehicle_id);
+                    break;
+                case "1":
+                    orderedResults = sortOrder == "asc" ? serviceRequests.OrderBy(o => o.mileage) : serviceRequests.OrderByDescending(o => o.mileage);
+                    break;
+                case "2":
+                    orderedResults = sortOrder == "asc" ? serviceRequests.OrderBy(o => o.driver_username) : serviceRequests.OrderByDescending(o => o.driver_username);
+                    break;
+                case "3":
+                    orderedResults = sortOrder == "asc" ? serviceRequests.OrderBy(o => o.service_type) : serviceRequests.OrderByDescending(o => o.service_type);
+                    break;
+                case "4":
+                    orderedResults = sortOrder == "asc" ? serviceRequests.OrderBy(o => o.request_date) : serviceRequests.OrderByDescending(o => o.request_date);
+                    break;
+                case "5":
+                    orderedResults = sortOrder == "asc" ? serviceRequests.OrderBy(o => o.request_descs) : serviceRequests.OrderByDescending(o => o.request_descs);
+                    break;
+                case "6":
+                    orderedResults = sortOrder == "asc" ? serviceRequests.OrderBy(o => o.action_taken) : serviceRequests.OrderByDescending(o => o.action_taken);
+                    break;
+                case "7":
+                    orderedResults = sortOrder == "asc" ? serviceRequests.OrderBy(o => o.date_started) : serviceRequests.OrderByDescending(o => o.date_started);
+                    break;
+                case "8":
+                    orderedResults = sortOrder == "asc" ? serviceRequests.OrderBy(o => o.date_completed) : serviceRequests.OrderByDescending(o => o.date_completed);
+                    break;
+            }
+            var itemsToSkip = displayStart == 0
+                              ? 0
+                              : displayStart + 1;
+            var pagedResults = orderedResults.Skip(itemsToSkip).Take(displayLength).ToList();
+
+            JavaScriptSerializer ser = new JavaScriptSerializer();
+            var sb = new StringBuilder();
+            sb.Append("{");
+            sb.Append("\"sEcho\": " + echo + ",");
+            sb.Append("\"recordsTotal\": " + serviceRequests.Count() + ",");
+            sb.Append("\"recordsFiltered\": " + serviceRequests.Count() + ",");
+            sb.Append("\"iTotalRecords\": " + serviceRequests.Count() + ",");
+            sb.Append("\"iTotalDisplayRecords\": " + serviceRequests.Count() + ",");
+            sb.Append("\"aaData\": " + ser.Serialize(pagedResults));
+
+            sb.Append("}");
+
+            return sb.ToString();
+        }
+    }
+
+    [WebMethod(EnableSession = true)]
+    [ScriptMethod(ResponseFormat = ResponseFormat.Json, UseHttpGet = true)]
+    public String getVehicleLogsDT()
+    {
+        List<VehicleLogDTO> vehicleLogs = new List<VehicleLogDTO>();
+
+        var echo = int.Parse(HttpContext.Current.Request.Params["sEcho"]);
+        var displayLength = int.Parse(HttpContext.Current.Request.Params["iDisplayLength"]);
+        var displayStart = int.Parse(HttpContext.Current.Request.Params["iDisplayStart"]);
+        var sortOrder = HttpContext.Current.Request.Params["sSortDir_0"].ToString(CultureInfo.CurrentCulture);
+        var sortCol = HttpContext.Current.Request.Params["iSortCol_0"].ToString(CultureInfo.CurrentCulture);
+
+        string search = HttpContext.Current.Request.Params["searchValue"].ToString();
+        string vehicle_plate_no = HttpContext.Current.Request.Params["vehicle_plate_no"].ToString();
+        var roleId = HttpContext.Current.Request.Params["roleId"].ToString(CultureInfo.CurrentCulture);
+        System.Diagnostics.Debug.WriteLine("the value of vehicle_plate_no is : " + vehicle_plate_no);
+
+        String sql = @"SELECT [vehicle_plate_no]
+                              ,[odometer]
+                              ,[last_fuel_price]
+                              ,[total_gas]
+                              ,[total_cost]
+                              ,[date]
+                              ,[full_tank]
+                              ,[result]
+                              ,[driver_username]
+                              ,[audit_user]
+                              ,[audit_date]
+                      FROM [Nutratech_DB].[dbo].[vehicle_log]
+                      WHERE vehicle_plate_no =@vehicle_plate_no order by 'date' desc ";
+
+        //sql += "AND ( last_fuel_price like '%" + search + "%' OR odometer like '%" + search + "%' ";
+        //sql += "OR driver_username like '%" + search + "%' OR odometer like '%" + search + "%' ";
+        //sql += "order by 'date' desc";
+
+        SqlConnection cn = new SqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString);
+        SqlCommand cmd = new SqlCommand(sql, cn);
+
+        cmd.Parameters.AddWithValue("vehicle_plate_no", vehicle_plate_no);
+
+        SqlDataReader dtr;
+        cn.Open();
+        dtr = cmd.ExecuteReader();
+
+        while (dtr.Read())
+        {
+            // System.Diagnostics.Debug.WriteLine("and full_tank gkan sa db kai : " + dtr["full_tank"].ToString().Trim());
+            vehicleLogs.Add(new VehicleLogDTO
+            {
+                vehicle_plate_no = dtr["vehicle_plate_no"].ToString().Trim(),
+                odometer = Convert.ToDouble(dtr["odometer"].ToString().Trim()),
+                last_fuel_price = Convert.ToDouble(dtr["last_fuel_price"].ToString().Trim()),
+                total_gas = Convert.ToDouble(dtr["total_gas"].ToString().Trim()),
+                total_cost = Convert.ToDouble(dtr["total_cost"].ToString().Trim()),
+                date = DateTime.Parse(dtr["date"].ToString().Trim()).ToString("MM/dd/yyyy"),
+                full_tank = dtr["full_tank"].ToString().Trim(),
+                result = Convert.ToDouble(dtr["result"].ToString().Trim()),
+                driver_username = dtr["driver_username"].ToString().Trim(),
+                audit_user = dtr["audit_user"].ToString().Trim(),
+                audit_date = dtr["audit_date"].ToString().Trim()
+
+            });
+        }
+
+        var orderedResults = sortOrder == "asc"
+                             ? vehicleLogs.OrderBy(o => o.vehicle_plate_no)
+                             : vehicleLogs.OrderByDescending(o => o.vehicle_plate_no);
+
+        var itemsToSkip = displayStart == 0
+                              ? 0
+                              : displayStart + 1;
+        var pagedResults = orderedResults.Skip(itemsToSkip).Take(displayLength).ToList();
+
+        JavaScriptSerializer ser = new JavaScriptSerializer();
+        var sb = new StringBuilder();
+        sb.Append("{");
+        sb.Append("\"sEcho\": " + echo + ",");
+        sb.Append("\"recordsTotal\": " + vehicleLogs.Count() + ",");
+        sb.Append("\"recordsFiltered\": " + vehicleLogs.Count() + ",");
+        sb.Append("\"iTotalRecords\": " + vehicleLogs.Count() + ",");
+        sb.Append("\"iTotalDisplayRecords\": " + vehicleLogs.Count() + ",");
+        sb.Append("\"aaData\": " + ser.Serialize(pagedResults));
+
+        sb.Append("}");
+
+
+        dtr.Close();
+        cn.Close();
+        return sb.ToString();
+    }
 
 
     #endregion
