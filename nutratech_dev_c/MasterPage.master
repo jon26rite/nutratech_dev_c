@@ -176,7 +176,27 @@
                                 </li>
                             </ItemTemplate>
                         </asp:Repeater>
-                        
+                        <li>
+                            <a href="motorpool.aspx"><i class="fa fa-truck fa-fw"></i>Motor Pool<span class="fa arrow"></span></a>
+                            <ul class="nav nav-second-level">
+                                <li>                                    
+                                    <a href="VehicleLog.aspx"><i class="fa fa-tachometer fa-fw"></i>Vehicle Log<span class="none"></span></a>
+                                    <a href="MotorPoolServiceRequest.aspx"><i class="fa fa-wrench fa-fw"></i>Service Request<span class="none"></span></a>                                    
+                                </li>
+                                <li>
+                                    <a href="MotorPoolMasterfile.aspx"><i class="fa fa-cogs fa-fw"></i>Motor Pool - Masterfiles<span class="fa arrow"></span></a>
+                                    <ul class="nav nav-third-level">
+                                        <li>
+                                            <a href="MotorPoolMasterfile.aspx?ID=ViewAccessory"><i class="fa fa-steam fa-fw"></i> Accessory<span class="none"></span></a>
+                                            <a href="MotorPoolMasterfile.aspx?ID=ViewAccessoryGroup"><i class="fa fa-cubes fa-fw"></i> Accessory Group<span class="none"></span></a>
+                                            <a href="MotorPoolMasterfile.aspx?ID=ViewVehicleAccessory"><i class="fa fa-car fa-fw"></i> Vehicle Accessory<span class="none"></span></a>
+                                            <a href="MotorPoolMasterfile.aspx?ID=ViewServiceType"><i class="fa fa-wrench fa-fw"></i> Service Type<span class="none"></span></a>
+                                            <a href="vehicle.aspx"><i class="fa fa-car fa-fw"></i>Vehicle<span class="none"></span></a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
                     </ul>
                 </div>
                 <!-- /.sidebar-collapse -->
