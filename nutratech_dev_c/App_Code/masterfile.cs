@@ -2629,33 +2629,38 @@ public class masterfile : System.Web.Services.WebService
 
         adapter.InsertCommand = cmd;
         adapter.InsertCommand.Connection = cn;
+        
+            adapter.InsertCommand.CommandText = "sp_inventory_search_list";
+            adapter.InsertCommand.CommandType = CommandType.StoredProcedure;
+            adapter.InsertCommand.CommandTimeout = 300;
 
-        adapter.InsertCommand.CommandText = "sp_inventory_search_list";
-        adapter.InsertCommand.CommandType = CommandType.StoredProcedure;
-        adapter.InsertCommand.CommandTimeout = 300;
+            SqlParameter _param = new SqlParameter("@company_cd", SqlDbType.Char, 5);
+            _param.Value = HttpContext.Current.Session["company_code"];
+            _param.Direction = ParameterDirection.Input;
+            adapter.InsertCommand.Parameters.Add(_param);
 
-        SqlParameter _param = new SqlParameter("@company_cd", SqlDbType.Char, 5);
-        _param.Value = HttpContext.Current.Session["company_code"];
-        _param.Direction = ParameterDirection.Input;
-        adapter.InsertCommand.Parameters.Add(_param);
+            _param = new SqlParameter("@trx_type", SqlDbType.Char, 5);
+            _param.Value = HttpContext.Current.Session["trx_type"];
+            _param.Direction = ParameterDirection.Input;
+            adapter.InsertCommand.Parameters.Add(_param);
 
-        _param = new SqlParameter("@trx_type", SqlDbType.Char, 5);
-        _param.Value = HttpContext.Current.Session["trx_type"]; 
-        _param.Direction = ParameterDirection.Input;
-        adapter.InsertCommand.Parameters.Add(_param);
+            _param = new SqlParameter("@username", SqlDbType.VarChar, 20);
+            _param.Value = HttpContext.Current.Session["username"];
+            _param.Direction = ParameterDirection.Input;
+            adapter.InsertCommand.Parameters.Add(_param);
 
-        _param = new SqlParameter("@username", SqlDbType.VarChar, 20);
-        _param.Value = HttpContext.Current.Session["username"];
-        _param.Direction = ParameterDirection.Input;
-        adapter.InsertCommand.Parameters.Add(_param);
+            _param = new SqlParameter("@status", SqlDbType.VarChar, 20);
+            _param.Value = HttpContext.Current.Session["search_status"];
+            _param.Direction = ParameterDirection.Input;
+            adapter.InsertCommand.Parameters.Add(_param);
 
-        _param = new SqlParameter("@status", SqlDbType.VarChar, 20);
-        _param.Value = HttpContext.Current.Session["search_status"];
-        _param.Direction = ParameterDirection.Input;
-        adapter.InsertCommand.Parameters.Add(_param);
+            _param = new SqlParameter("@search", SqlDbType.NVarChar, 250);
+            _param.Value = "%" + xsearch + "%";
+            _param.Direction = ParameterDirection.Input;
+            adapter.InsertCommand.Parameters.Add(_param);
 
-        _param = new SqlParameter("@search", SqlDbType.NVarChar, 250);
-        _param.Value = "%" + xsearch + "%";
+        _param = new SqlParameter("@warehouse_cd", SqlDbType.Char, 5);
+        _param.Value = HttpContext.Current.Session["warehouse_cd"];
         _param.Direction = ParameterDirection.Input;
         adapter.InsertCommand.Parameters.Add(_param);
 
@@ -2866,7 +2871,6 @@ public class masterfile : System.Web.Services.WebService
             DateTime null_date = new DateTime(1900, 1, 1);
 
             string mfg_date = (Convert.ToDateTime(dtr["mfg_date"]) == null_date) ? "" : Convert.ToDateTime(dtr["mfg_date"].ToString().Trim()).ToShortDateString();
-
 
             sb.Append("{");
             sb.Append("\"item_cd\":\"" + dtr["item_cd"].ToString().Trim() + "\",");
@@ -5717,7 +5721,7 @@ public class masterfile : System.Web.Services.WebService
         sql = sql + "CASE WHEN ExtentionName IS NOT NULL THEN rtrim(ExtentionName) ELSE '' END ";
         sql = sql + "AS name ";
         sql = sql + "FROM            Employees ";
-        sql = sql + "WHERE        (Department = " + _department_code + ") AND (Deactivated = 0) ";
+        sql = sql + "WHERE       (Deactivated = 0) ";
         sql = sql + "ORDER BY LastName, FirstName, MiddleInitial ";
 
         SqlConnection cn = new SqlConnection(System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionStringEDS"].ConnectionString);
