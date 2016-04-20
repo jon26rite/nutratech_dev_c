@@ -1,22 +1,15 @@
 ﻿var webservicepath = "masterfile.asmx";
 var oTable;
 
-
-
-
 $(document).ready(function () {
     addNewInputType();
     InitTable();
     table_slider();
     setDropDownCssClass();
     bindDropDownList();
-  
-
-   
 
     $('#date').keyup(function () {
         var d = $(this).val() // get the current value of the input field.
-
         if (!isValidDate(d)) {
             $('#btnViewReport').addClass("disabled");
         } else {
@@ -75,7 +68,6 @@ $(document).ready(function () {
         changeYear: true,
         yearRange: '-5:+20',
         onSelect: function (d, i) {
-         
             if (isValidDate(d)) {
                 $('#btnViewReport').removeClass("disabled");
             }
@@ -156,12 +148,19 @@ function InitTable() {
         "bAutoWidth": false,
         "sAjaxSource": webservicepath + "/GetTableData_Cost",
         "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-            switch(aData.unit_cost){
-                case 0:
-                    $(nRow).css('background-color', 'rgba(255, 224, 224, 0.68);')
-                    break;
-                
+            var cell = $(nRow).find("td").eq(5);
+            var rowId = cell.context._DT_RowIndex;
+            var rowData = oTable.fnGetData(rowId);
+          
+            if (aData.unit_cost == 0) {
+                $(nRow).css('background-color', 'rgba(255, 224, 224, 0.68);')
             }
+
+            if (rowData.issuance_stat >= 1) {
+                var cell_value = rowData.unit_cost;
+                cell[0].innerHTML = '<div>' + cell_value + '<span class="icon-arrow-right"><img title="New issuance without unit cost" src="images/warn.png"></span></div>'
+             }
+
         },
         "fnServerData": function (sSource, aoData, fnCallback) {
 
@@ -208,7 +207,7 @@ function InitTable() {
                 "orderable": false,
                 "data": null,
                 "sWidth": "5px",
-                "sDefaultContent": '<img src="images/plus.png">'
+                "sDefaultContent": '<img title="View issuance history" src="images/plus.png">'
             },
             {
                 "mDataProp": "complete_item_cd", "sTitle": "Item Code",
@@ -369,7 +368,7 @@ function getSameRows(sentObject) {
 }
 
 function UpdateData(sentObject) {
-    
+  
     if (sentObject.value == '') {
         sentObject.value = 0;
     }
@@ -405,8 +404,6 @@ function UpdateData(sentObject) {
             return 0;
         }
     });
-
-
 }
 
 
@@ -431,14 +428,14 @@ function table_slider() {
         }
 
         if (oTable.fnIsOpen(nTr)) {
-            this.innerHTML = '<img src="images/plus.png">'
+            this.innerHTML = '<img title="View issuance history" src="images/plus.png">'
             oTable.fnClose(nTr);
         }
 
         //show slider
         else {
            
-                this.innerHTML = '<img src="images/minus.png">'
+                this.innerHTML = '<img title="Close" src="images/minus.png">'
                 var rowIndex = oTable.fnGetPosition($(nTds).closest('tr')[0]);
 
                 oTable.fnOpen(nTr, fnFormatDetails(iTableCounter, TableHtml), 'details');

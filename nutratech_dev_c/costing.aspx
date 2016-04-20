@@ -21,6 +21,11 @@
             height: 0px;
         }
 
+        .icon-arrow-right {
+            float: right;
+          
+        }
+
         .right {
             float: right;
             /*  font-size: 20px;*/
@@ -67,6 +72,7 @@
             background-color: #cc0000;
             color: #f2f2f2;
         }
+
         .error-body {
             background-color: rgba(255, 224, 224, 0.68);
         }
@@ -74,8 +80,6 @@
         .form-control {
             height: inherit !important;
         }
-
-       
     </style>
 
 
@@ -104,15 +108,15 @@
                 <div class="col-sm-4">
                     <div class="input-group input-group-xs">
                         <span class="input-group-addon span-addon" style="color: #286090; text-align: left;">PO No. : </span>
-                        <asp:DropDownList ID="DD_Po_No" CssClass="form-control searchable" runat="server" OnSelectedIndexChanged="selectedIndexChange" >
-                       </asp:DropDownList>
+                        <asp:DropDownList ID="DD_Po_No" CssClass="form-control searchable" runat="server" OnSelectedIndexChanged="selectedIndexChange">
+                        </asp:DropDownList>
 
                     </div>
                 </div>
                 <div class="col-sm-4">
                     <div class="input-group input-group-xs">
                         <span class="input-group-addon span-addon" style="color: #286090; text-align: left;">RR No. : </span>
-                        <asp:DropDownList ID="DD_RR_No" CssClass="form-control" runat="server" OnSelectedIndexChanged="selectedIndexChange" >
+                        <asp:DropDownList ID="DD_RR_No" CssClass="form-control" runat="server" OnSelectedIndexChanged="selectedIndexChange">
                         </asp:DropDownList>
                     </div>
                 </div>
@@ -138,7 +142,7 @@
                 <div class="col-sm-4">
                     <div class="right">
 
-                    <!--   <b>Issuance Total:</b>  &#8369<span id="issuance_total"></span>-->
+                        <!--   <b>Issuance Total:</b>  &#8369<span id="issuance_total"></span>-->
 
                     </div>
                 </div>
@@ -205,7 +209,7 @@
                             </asp:DropDownList>
                         </div>
                     </div>
-                     <div class="row xrow">
+                    <div class="row xrow">
                         <div class="input-group input-group-sm">
                             <span class="input-group-addon span-addon-pw" style="color: #286090; text-align: left;">Highlight Unit Cost : </span>
                             <asp:DropDownList ID="HighLight" CssClass="form-control" runat="server">
@@ -235,20 +239,20 @@
                 </div>
                 <div class="modal-body">
                     <h4>Found entries with the same Control No. Click 'OK' to continue.</h4>
-                     <div class="row xrow dataTable_wrapper">
-                <table id="same_rows_table" class="display table-bordered table-hover table-font item_report">
-                    <thead class="GridHeader" />
-                </table>
-            </div>
+                    <div class="row xrow dataTable_wrapper">
+                        <table id="same_rows_table" class="display table-bordered table-hover table-font item_report">
+                            <thead class="GridHeader" />
+                        </table>
+                    </div>
 
-                   
+
 
                 </div>
 
 
                 <div class="modal-footer">
-                    <button type="button" id="btn_update_yes" class="btn btn-sm btn-primary " style="width:100px;">OK</button>
-                    <button type="button" class="btn btn-sm btn-secondary " style="width:100px;" data-dismiss="modal">Cancel</button>
+                    <button type="button" id="btn_update_yes" class="btn btn-sm btn-primary " style="width: 100px;">OK</button>
+                    <button type="button" class="btn btn-sm btn-secondary " style="width: 100px;" data-dismiss="modal">Cancel</button>
                 </div>
             </div>
         </div>
@@ -273,7 +277,7 @@
         </div>
     </div>
 
- 
+
     <!-- DataTables JavaScript -->
 
     <script src="bower_components/datatables/media/js/jquery.dataTables.min.js"></script>
@@ -287,8 +291,8 @@
     <script src="javascript/cha/jquery.formatCurrency-1.4.0.min.js" type="text/javascript"></script>
     <script src="javascript/cha/jquery.dataTables.editable.js" type="text/javascript"></script>
     <script src="javascript/cha/jquery.jeditable.mini.js" type="text/javascript"></script>
-     <script src="javascript/cha/stock_update.js" type="text/javascript" lang="javascript"></script>
+    <script src="javascript/cha/stock_update.js" type="text/javascript" lang="javascript"></script>
 
-   
+
 </asp:Content>
 
