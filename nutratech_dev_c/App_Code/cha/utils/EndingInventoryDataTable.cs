@@ -53,7 +53,7 @@ namespace cha.utils
         /// <summary>
         /// Generates default columns with exact structure to the CostingDataSet stock_inventory datatable.
         /// </summary>
-        public void generateDefaultColumns()
+        private void generateDefaultColumns()
         {
             
             this.Columns.Add(new DataColumn("company_cd", typeof(string)));

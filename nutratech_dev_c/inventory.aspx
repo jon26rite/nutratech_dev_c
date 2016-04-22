@@ -343,7 +343,7 @@
                 </div>
                 <div class="col-sm-2">
                     <div class="row xrow">
-                        <button id="btnOSExcelReport" type="button"  class="btn btn-primary btn-sm btn-block"  runat="server" onclick="onbtnOSExcelReportClick()"><span class="fa fa-file-excel-o fa-fw" aria-hidden="true"></span>Excel Report</button>
+                        <button id="btnOSExcelReport" type="button"  class="btn btn-primary btn-sm btn-block"  runat="server" onclick="onbtnOSExcelReportClick()"><span class="fa fa-file-excel-o fa-fw" aria-hidden="true"></span> OS Excel Report</button>
                     </div>
                 </div>
             </div>
@@ -606,7 +606,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title"><i class="fa fa-print fa-fw"></i>Reports</h4>
+                    <h4 class="modal-title"><i class="fa fa-print fa-fw"></i>Office Supply Reports</h4>
                 </div>
                 <div class="modal-body">
                     <div class="row xrow">

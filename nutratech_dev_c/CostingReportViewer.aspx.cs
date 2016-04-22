@@ -45,10 +45,9 @@ public partial class CostingReportViewer : System.Web.UI.Page
             String connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
 
             CostingDataSet stk_ds = new CostingDataSet();
-            LinkedList<String> inventoryItemList = new LinkedList<string>();
             DataTable dtFromDataSet = stk_ds.Tables["stock_inventory"];
-            EndingInventoryDataTable endingInventoryDataTable = new EndingInventoryDataTable();
-            endingInventoryDataTable.generateDefaultColumns();
+            EndingInventoryDataTable endingInventoryDataTable = new EndingInventoryDataTable(dtFromDataSet);
+           // endingInventoryDataTable.generateDefaultColumns();
             if (report_details == 0) { endingInventoryDataTable.ReportType = EndingInventoryDataTable.Details.Summarized; }
             
 

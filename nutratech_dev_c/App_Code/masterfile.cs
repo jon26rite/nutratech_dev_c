@@ -6468,7 +6468,7 @@ public class masterfile : System.Web.Services.WebService
         CostingDataSet stk_ds = new CostingDataSet();
         LinkedList<String> inventoryItemList = new LinkedList<string>();
         DataTable dtFromDataSet = stk_ds.Tables["stock_inventory"];
-        EndingInventoryDataTable endingInventoryDataTable = new EndingInventoryDataTable();
+        EndingInventoryDataTable endingInventoryDataTable = new EndingInventoryDataTable(dtFromDataSet);
         if (report_details == 0) { endingInventoryDataTable.ReportType = EndingInventoryDataTable.Details.Summarized; }
 
 
