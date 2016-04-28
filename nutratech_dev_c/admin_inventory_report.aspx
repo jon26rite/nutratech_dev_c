@@ -1,7 +1,10 @@
 ﻿<%@ Page Title="" Language="C#" MasterPageFile="~/MasterPage.master" AutoEventWireup="true" CodeFile="admin_inventory_report.aspx.cs" Inherits="admin_inventory_report" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="ContentPlaceHolder1" Runat="Server">
-
+      <!-- DataTables CSS -->
+    <link href="bower_components/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.css" rel="stylesheet" />
+    <!-- DataTables Responsive CSS -->
+    <link href="bower_components/datatables-responsive/css/dataTables.responsive.css" rel="stylesheet" />
     <div class="row">
         <div class="col-lg-12">
             <div>
@@ -42,7 +45,7 @@
 
             <div class="row xrow dataTable_wrapper">
                 <!-- <table id="tbl_stock_card" class="table-bordered table-hover item_report table-font">-->
-                <table id="tbl_inventory" class=" table-bordered table-hover table-font ">
+                <table id="tbl_inventory" class=" table-bordered table-hover table-font item_report ">
                     <thead class="GridHeader" />
                 </table>
             </div>

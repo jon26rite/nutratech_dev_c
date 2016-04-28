@@ -32,7 +32,7 @@ public partial class admin_inventory_report : System.Web.UI.Page
 
             MultiView1.SetActiveView(View1);
 
-           
+
 
         }
 
@@ -47,11 +47,10 @@ public partial class admin_inventory_report : System.Web.UI.Page
             int report_details = Convert.ToInt32(DD_Report_Details.SelectedValue);
             DateTime as_of_date = Convert.ToDateTime(os_report_as_of_date.Text);
             string company_cd = Convert.ToString(hidden_company.Value).Trim();
-            System.Diagnostics.Debug.WriteLine("value is: " + hidden_company.Value);
-           
             bool highlight = Convert.ToBoolean(HighLight.SelectedValue);
             string inout_mode = "";
             string title = "";
+            string person_column_header = "";
             int monthly = 1;
 
             String connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
@@ -67,11 +66,13 @@ public partial class admin_inventory_report : System.Web.UI.Page
                 case 1:
                     inout_mode = "O";
                     title = "ISSUED SUPPLIES";
+                    person_column_header = "Issued To";
                     break;
                 //monthly received
                 case 2:
                     inout_mode = "I";
                     title = "RECEIVED SUPPLIES";
+                    person_column_header = "Supplier";
                     break;
                 //ending balance
                 default:
@@ -131,6 +132,7 @@ public partial class admin_inventory_report : System.Web.UI.Page
             cryRpt.ParameterFields["user"].CurrentValues.AddValue(HttpContext.Current.Session["username"].ToString());
             cryRpt.ParameterFields["highlight_enabled"].CurrentValues.AddValue(highlight);
             cryRpt.ParameterFields["title"].CurrentValues.AddValue(title);
+            cryRpt.ParameterFields["person_column_header"].CurrentValues.AddValue(person_column_header);
             cryRpt.ParameterFields["as_of_date"].CurrentValues.AddValue(as_of_date.ToString("MMM-dd-yyyy"));
 
 
