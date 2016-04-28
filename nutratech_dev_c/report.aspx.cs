@@ -29,8 +29,7 @@ public partial class report : System.Web.UI.Page
         }
         if (!IsPostBack)
         { 
-            try
-            {
+            
                 string sDirPath = Server.MapPath("pdf\\" + Session["username"].ToString().Trim());
                 DirectoryInfo ObjSearchDir = new DirectoryInfo(sDirPath);
                 if (!ObjSearchDir.Exists)
@@ -38,10 +37,7 @@ public partial class report : System.Web.UI.Page
                     ObjSearchDir.Create();
                 }
 
-            }
-            catch (Exception ex)
-            {
-            }
+          
 
             try
             {
@@ -208,6 +204,6 @@ public partial class report : System.Web.UI.Page
             cn.Close();
             cn.Dispose();
         }
-    
+
 
 }

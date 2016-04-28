@@ -6,11 +6,17 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Data;
 using System.Data.SqlClient;
+using System.IO;
+using CrystalDecisions.Shared;
+using CrystalDecisions.CrystalReports.Engine;
+using cha.utils;
 
 public partial class inventory : System.Web.UI.Page
 {
     protected void Page_Load(object sender, EventArgs e)
     {
+
+
         if (Session.IsNewSession == true | User.Identity.Name == "")
         {
             Response.Redirect("Logout.aspx");
@@ -19,14 +25,18 @@ public partial class inventory : System.Web.UI.Page
         {
             Response.Redirect("Logout.aspx");
         }
+      
 
         if (!IsPostBack)
         {
+
+            
             HttpContext.Current.Session["table_name"] = null;
 
             
             BindInventoryDropdownlist(DDivision);
             BindInventoryDropdownlist(DDWarehouse);
+            
 
             if (string.IsNullOrEmpty(Request.QueryString["ID"]) == false)
             {
@@ -163,20 +173,24 @@ public partial class inventory : System.Web.UI.Page
                     hidden_useraccess.Value = HttpContext.Current.Session["access_level"].ToString();
                     txtUserEntry.Value = HttpContext.Current.Session["username"].ToString();
                     hidden_username.Value = HttpContext.Current.Session["username"].ToString();
-                    try { 
-                    BindInventoryDropdownlist(DDepartment);
-                    }
-                    catch { }
                     BindInventoryDropdownlist(DDReport_Warehouse);
 
+                  
+                
+                   
                 }
+                
             }
         }
-        try { 
-        hidden_company.Value = HttpContext.Current.Session["company_code"].ToString();
-        hidden_warehouse.Value = HttpContext.Current.Session["warehouse_cd"].ToString();
+        try
+        {
+            hidden_company.Value = HttpContext.Current.Session["company_code"].ToString();
+            hidden_warehouse.Value = HttpContext.Current.Session["warehouse_cd"].ToString();
         }
         catch { }
+
+
+
     }
 
     private void BindInventoryDropdownlist(DropDownList _obj)
@@ -339,4 +353,10 @@ public partial class inventory : System.Web.UI.Page
         }
 
     }
+
+
+   
+   
+
+   
 }

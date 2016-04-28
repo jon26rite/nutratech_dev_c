@@ -6352,6 +6352,33 @@ public class masterfile : System.Web.Services.WebService
     }
     #endregion
 
+    #region "Admin Report"
+
+    [WebMethod(EnableSession = true)]
+    [ScriptMethod(ResponseFormat = ResponseFormat.Json, UseHttpGet = true)]
+    public string GetAdminItems(string company_cd, string inout_mode)
+    {
+        try
+        {
+            String connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
+            AdminReport adminReport = new AdminReport(connectionString);
+            EndingInventoryDataTable adminInventoryTable = adminReport.getItems(company_cd, inout_mode);
+
+            return "{\"aaData\":" + adminInventoryTable.toJsonFormat() + " }";
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine("error: " + ex.Message);
+            Context.Response.StatusCode = (int)System.Net.HttpStatusCode.InternalServerError;
+            Context.Response.StatusDescription = ex.Message;
+            return null;
+
+        }
+
+    }
+
+    #endregion
+
     #region "Pricing"
 
     [WebMethod(EnableSession = true)]
@@ -6468,7 +6495,7 @@ public class masterfile : System.Web.Services.WebService
         CostingDataSet stk_ds = new CostingDataSet();
         LinkedList<String> inventoryItemList = new LinkedList<string>();
         DataTable dtFromDataSet = stk_ds.Tables["stock_inventory"];
-        EndingInventoryDataTable endingInventoryDataTable = new EndingInventoryDataTable();
+        EndingInventoryDataTable endingInventoryDataTable = new EndingInventoryDataTable(dtFromDataSet);
         if (report_details == 0) { endingInventoryDataTable.ReportType = EndingInventoryDataTable.Details.Summarized; }
 
 

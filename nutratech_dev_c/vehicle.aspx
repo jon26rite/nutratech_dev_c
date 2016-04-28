@@ -51,13 +51,7 @@
                             <button id="btn_Save" type="button" class="btn btn-primary disabled"><span class="fa fa-floppy-o fa-fw" aria-hidden="true"></span>Save</button>
                             <button id="btn_Cancel" type="button" class="btn btn-primary disabled"><span class="fa fa-remove fa-fw" aria-hidden="true"></span>Cancel</button>
                         </div>
-                        <div class="pull-right">
-                            <div id="xsearch_mf" class="input-group input-group-sm">
-                                <span class="input-group-addon"><span class="fa fa-search fa-fw"></span></span>
-                                <input type="text" id="txtsearch" class="form-control" placeholder="Search" />
-                            </div>
-                            <div id="search_document" class="list-group search_hide"></div>
-                        </div>
+                       
                     </div>
                 </div>
             </div>

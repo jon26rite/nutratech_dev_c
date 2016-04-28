@@ -41,7 +41,7 @@ public partial class stock : System.Web.UI.Page
 
     public void selectedIndexChange(object sender, EventArgs e)
     {
-
+       
         if (HttpContext.Current.Session["company_code"] == null || Session.IsNewSession == true || User.Identity.Name == "")
         {
             Session.Clear();

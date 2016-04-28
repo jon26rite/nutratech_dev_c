@@ -100,29 +100,7 @@ function initTable() {
             { "mDataProp": "location", "sTitle": "Location" }
         ]
     });
-     
-    //vTable.DataTable();
-    $('#txtsearch').keyup(function () {
 
-        $.fn.dataTableExt.afnFiltering.push(function (oSettings, aData, iDataIndex) {
-
-            console.log(aData)
-        })
-           // console.log("searching")
-           // console.log(vTable)
-           
-           // vTable.api().draw();           // vTable.fnFilter($(this).val());
-        //vTable.api().search($(this).val()).api().draw();
-
-            $.fn.dataTable.ext.search.push(
-        function (settings, data, dataIndex) {
-            console.log("hehe")
-            console.log(data)
-            
-            return false;
-        }
-    );
-        })
 }
 
 function validateInputFields() {
@@ -380,7 +358,7 @@ function viewTableRowData(rowData) {
                 plate_no: JSON.stringify(rowData.plate_no)
             },
             success: function (response) {
-                console.log(JSON.stringify(response));
+               // console.log(JSON.stringify(response));
                 var myData = JSON.parse(response.d);
                
               // console.log(myData)

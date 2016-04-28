@@ -28,11 +28,27 @@ namespace cha.utils
         public EndingInventoryDataTable()
             : base()
         {
-            generateDefaultColumns();
+          
             ReportType = Details.Complete;
         }
 
+        public EndingInventoryDataTable(DataTable source) {
+            clone(source);
+        }
 
+        public void clearColumns() {
+            this.Columns.Clear();
+        }
+        public  void clone(DataTable source)
+        {
+            this.Columns.Clear();
+            foreach (DataColumn c in source.Columns)
+            {
+              
+                this.Columns.Add(new DataColumn(c.ColumnName, c.DataType));
+            }
+           // return this;    
+        }
 
         /// <summary>
         /// Generates default columns with exact structure to the CostingDataSet stock_inventory datatable.
@@ -76,6 +92,8 @@ namespace cha.utils
             this.Columns.Add(new DataColumn("uom_conversion_factor", typeof(decimal)));
             this.Columns.Add(new DataColumn("total_received", typeof(decimal)));
             this.Columns.Add(new DataColumn("total_issued", typeof(decimal)));
+            this.Columns.Add(new DataColumn("department_descs", typeof(string)));
+            this.Columns.Add(new DataColumn("dept_cd", typeof(string)));
         }
 
 
@@ -138,6 +156,9 @@ namespace cha.utils
                 uom_conversion_factor = Convert.ToDecimal(dr["uom_conversion_factor"]);
             }
 
+            string department_descs = dr["department_descs"].ToString();
+            string dept_cd = dr["dept_cd"].ToString();
+            string item_remarks = dr["item_remarks"].ToString();
             newDataRow.c_uom_conversion = c_uom_conversion;
             newDataRow.company_cd = company_cd;
             newDataRow.company_name = company_name;
@@ -173,6 +194,10 @@ namespace cha.utils
             newDataRow.warehouse_name = warehouse_name;
             newDataRow.total_received = 0;
             newDataRow.total_issued = 0;
+            newDataRow.department_descs = department_descs;
+            newDataRow.dept_cd = dept_cd;
+            newDataRow.item_remarks = item_remarks;
+
 
           
             return newDataRow;
@@ -197,11 +222,6 @@ namespace cha.utils
                         this.Rows.Add(eiRow);
                         existingDataRow = eiRow;
                     }
-
-                   // decimal qty = Convert.ToDecimal(existingDataRow.qty);
-                   // decimal uom_conversion_factor = Convert.ToDecimal(existingDataRow.uom_conversion_factor);
-                   // decimal total_received = existingDataRow.total_received;
-                   // decimal total_issued = existingDataRow.total_issued;
                    
                     if (eiRow.inout_mode == "I")
                     {
@@ -511,6 +531,24 @@ namespace cha.utils
             {
                 get { return (decimal)base["total_issued"]; }
                 set { base["total_issued"] = value; }
+            }
+
+            public string department_descs
+            {
+                get { return (string)base["department_descs"]; }
+                set { base["department_descs"] = value; }
+            }
+
+            public string dept_cd
+            {
+                get { return (string)base["dept_cd"]; }
+                set { base["dept_cd"] = value; }
+            }
+
+            public string item_remarks
+            {
+                get { return (string)base["item_remarks"]; }
+                set { base["item_remarks"] = value; }
             }
 
         }

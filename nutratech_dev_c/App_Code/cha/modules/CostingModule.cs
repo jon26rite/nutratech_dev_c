@@ -39,7 +39,9 @@ namespace cha.modules
 
         public EndingInventoryDataTable getReceivedItems(string company_cd, string po_no, string receiving_receipt, string control_no)
         {
-            EndingInventoryDataTable costingDataTable = new EndingInventoryDataTable();
+            CostingDataSet stk_ds = new CostingDataSet();
+            DataTable source = stk_ds.Tables["stock_inventory"];
+            EndingInventoryDataTable costingDataTable = new EndingInventoryDataTable(source);
             if (connectionString != null)
             {
                 using (connection= new SqlConnection(connectionString))
@@ -73,7 +75,9 @@ namespace cha.modules
 
         public EndingInventoryDataTable getIssuedItemsByReceiptingDetails(Dictionary<string, string> selected_row)
         {
-            EndingInventoryDataTable costingDataTable = new EndingInventoryDataTable();
+            CostingDataSet stk_ds = new CostingDataSet();
+            DataTable source = stk_ds.Tables["stock_inventory"];
+            EndingInventoryDataTable costingDataTable = new EndingInventoryDataTable(source);
             if (connectionString != null)
             {
                 using (connection = new SqlConnection(connectionString))
