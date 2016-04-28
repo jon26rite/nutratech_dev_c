@@ -73,14 +73,16 @@ public partial class stock : System.Web.UI.Page
                                             stock_card.po_no LIKE @poNo and
                                            stock_card.po_no NOT LIKE '' and
                                             stock_card.status = 'Approved' and
-                                            stock_card.inout_mode = 'I'
+                                            stock_card.inout_mode = 'I' and
+                                            stock_card.item_category_cd != 'OS'
                                         UNION
                                      SELECT DISTINCT stock_card_posted.po_no from stock_card_posted
                                         WHERE
                                             stock_card_posted.company_cd = @companyCd and 
                                             stock_card_posted.po_no LIKE @poNo and
                                            stock_card_posted.po_no NOT LIKE '' and
-                                             stock_card_posted.inout_mode = 'I'
+                                             stock_card_posted.inout_mode = 'I' and
+                                            stock_card_posted.item_category_cd != 'OS'
                                         order by po_no asc;";
                     break;
                 case "DD_RR_No":
@@ -90,13 +92,15 @@ public partial class stock : System.Web.UI.Page
                                             stock_card.company_cd = @companyCd and 
                                             stock_card.receiving_receipt like @receivingReceipt and
                                             stock_card.receiving_receipt NOT LIKE '' and
-                                            stock_card.status = 'Approved'
+                                            stock_card.status = 'Approved' and
+                                            stock_card.item_category_cd != 'OS'
                                         UNION
                                      SELECT DISTINCT stock_card_posted.receiving_receipt from stock_card_posted
                                         WHERE
                                             stock_card_posted.company_cd = @companyCd and 
                                              stock_card_posted.receiving_receipt like @receivingReceipt and
-                                            stock_card_posted.receiving_receipt NOT LIKE ''
+                                            stock_card_posted.receiving_receipt NOT LIKE '' and
+                                            stock_card_posted.item_category_cd != 'OS'
                                         order by receiving_receipt asc;";
                     break;
                 case "DD_Control_No":
@@ -106,13 +110,15 @@ public partial class stock : System.Web.UI.Page
                                             stock_card.company_cd = @companyCd and 
                                            stock_card.control_no LIKE @controlNo and
                                            stock_card.control_no NOT LIKE '' and
-                                            stock_card.status = 'Approved'
+                                            stock_card.status = 'Approved' and
+                                            stock_card.item_category_cd != 'OS'
                                         UNION
                                      SELECT DISTINCT stock_card_posted.control_no from stock_card_posted
                                         WHERE
                                             stock_card_posted.company_cd = @companyCd and 
                                              stock_card_posted.control_no LIKE @controlNo and
-                                            stock_card_posted.control_no NOT LIKE ''
+                                            stock_card_posted.control_no NOT LIKE '' and
+                                            stock_card_posted.item_category_cd != 'OS'
                                         order by control_no asc;";
                     break;
                 default:
