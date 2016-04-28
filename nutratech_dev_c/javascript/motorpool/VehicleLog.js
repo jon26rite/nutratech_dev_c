@@ -38,7 +38,7 @@ var initializeBindings = function () {
 
     //SAVE============================================================
     $('#btnSave').click(function () {
-        console.log('button save is clicked!');
+      //  console.log('button save is clicked!');
         insertVehicleLog();
     });
 
@@ -146,9 +146,9 @@ var insertVehicleLog = function () {
     }
     var param = { vehicleLogDTO: vehicleLogDTO };
   
-    console.log('the params are : ' + result + " : " + JSON.stringify(param));
+   // console.log('the params are : ' + result + " : " + JSON.stringify(param));
     ajaxHelper('masterfile.asmx/insertVehicleLog', 'POST', JSON.stringify(param)).done(function (data) {
-        console.log('the received from insertVehicleLog data is : ' + JSON.stringify(data));
+       // console.log('the received from insertVehicleLog data is : ' + JSON.stringify(data));
 
         if (data.d != '') {
             $('#div_msg').html('');
@@ -218,7 +218,7 @@ var loadVehicleLogTable = function(vehicle_plate_no){
     var parameter = '{ vehicle_plate_no: "' + vehicle_plate_no + '"}';
     ajaxHelper('masterfile.asmx/getVehicleLogs', 'POST', parameter).done(function (data) {
         var datad = data.d;
-        console.log("the datad from getVehicleLogs are : " + JSON.stringify(datad));
+    //    console.log("the datad from getVehicleLogs are : " + JSON.stringify(datad));
        
         getlastFuelPrice(vehicle_plate_no);
         $('#T_VehicleLog tbody').remove();
@@ -238,10 +238,10 @@ var loadVehicleLogTable = function(vehicle_plate_no){
 
 var getlastFuelPrice = function (vehicle_plate_no) {
     var parameter = '{ vehicle_plate_no: "' + vehicle_plate_no + '"}';
-    console.log('the vehicle_plate_no from getLastFUelPrice method is : ' + vehicle_plate_no);
+//    console.log('the vehicle_plate_no from getLastFUelPrice method is : ' + vehicle_plate_no);
     ajaxHelper('masterfile.asmx/getLastFuelPrice', 'POST', parameter).done(function (data) {
         var datad = data.d;
-        console.log("the datad from getLastFuelPrice are : " + JSON.stringify(datad));     
+   //     console.log("the datad from getLastFuelPrice are : " + JSON.stringify(datad));     
         $('#ContentPlaceHolder1_last_fuel_price').val('');
         $('#ContentPlaceHolder1_last_fuel_price').val(datad);
     });
@@ -290,7 +290,7 @@ var initTable = function () {
                 "data": aoData,
                 "success": function (msg) {
                     var json = jQuery.parseJSON(msg.d);
-                    console.log("the data that comes bck from datatable is : " + JSON.stringify(msg));
+                   // console.log("the data that comes bck from datatable is : " + JSON.stringify(msg));
                     fnCallback(json);
                 }
             })

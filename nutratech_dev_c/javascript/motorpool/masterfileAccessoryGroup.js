@@ -34,7 +34,7 @@ var initializeBindings = function () {
 
     //SAVE============================================================
     buttonSave.click(function () {
-        console.log('button save is clicked!');
+        //console.log('button save is clicked!');
         saveAccessoryGroup();
         disable_form();
         //insertVehicleLog();
@@ -93,7 +93,7 @@ var initTable = function () {
                 "data": {},
                 "success": function (msg) {
                     var json = jQuery.parseJSON(msg.d);
-                    console.log("the data that comes bck from datatable is : " + JSON.stringify(msg));
+                   // console.log("the data that comes bck from datatable is : " + JSON.stringify(msg));
                     fnCallback(json);
                 }
             })
@@ -156,9 +156,9 @@ var saveAccessoryGroup = function () {
         is_new_entry: is_new_entry
     }
 
-    console.log('the parameters of saveAccessoryGroup are : ' + JSON.stringify(params));
+   // console.log('the parameters of saveAccessoryGroup are : ' + JSON.stringify(params));
     ajaxHelper('masterfile.asmx/saveAccessoryGroup', 'POST', JSON.stringify(params)).done(function (data) {
-        console.log('the received from insertVehicleLog data is : ' + JSON.stringify(data));
+       // console.log('the received from insertVehicleLog data is : ' + JSON.stringify(data));
         if (data.d != '') {
             $('#div_msg').html('');
             $('#div_msg').html(data.d);

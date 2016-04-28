@@ -44,7 +44,7 @@ var initializeBindings = function () {
 
     //SAVE============================================================
     buttonSave.click(function () {
-        console.log('button save is clicked!');
+      //  console.log('button save is clicked!');
         saveServiceRequest();
         disable_form();
         //insertVehicleLog();
@@ -127,7 +127,7 @@ var initializeButtons = function () {
 var initTable = function () {
 
     var search = $('#txtsearch').val();
-    console.log('the txtsearch is : ' + search);
+  //  console.log('the txtsearch is : ' + search);
     vTable = $('#T_Service_Request').dataTable({
         "autoWidth": true,
         "bLengthChange": false,
@@ -156,7 +156,7 @@ var initTable = function () {
                 "data": aoData,
                 "success": function (msg) {
                     var json = jQuery.parseJSON(msg.d);
-                    console.log("the data that comes bck from datatable is : " + JSON.stringify(msg));
+                 //   console.log("the data that comes bck from datatable is : " + JSON.stringify(msg));
                     fnCallback(json);
                 }
             })
@@ -258,9 +258,9 @@ var saveServiceRequest = function () {
 
     var params = { ServiceRequest: ServiceRequest };
 
-    console.log('the parameters of saveServiceRequest are : ' + JSON.stringify(params));
+  //  console.log('the parameters of saveServiceRequest are : ' + JSON.stringify(params));
     ajaxHelper('masterfile.asmx/saveServiceRequest', 'POST', JSON.stringify(params)).done(function (data) {
-        console.log('the received from insertVehicleLog data is : ' + JSON.stringify(data));
+      //  console.log('the received from insertVehicleLog data is : ' + JSON.stringify(data));
         if (data.d != '') {
             $('#div_msg').html('');
             $('#div_msg').html(data.d);

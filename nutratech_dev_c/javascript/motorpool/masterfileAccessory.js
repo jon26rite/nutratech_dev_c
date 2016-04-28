@@ -32,7 +32,7 @@ var initializeBindings = function () {
 
     //SAVE============================================================
     buttonSave.click(function () {
-        console.log('button save is clicked!');
+        //console.log('button save is clicked!');
         saveAccessory();
         disable_form();        
     });
@@ -136,9 +136,9 @@ var saveAccessory = function () {
         is_new_entry: is_new_entry
     }
 
-    console.log('the parameters of saveAccessory are : ' + JSON.stringify(params));
+    //console.log('the parameters of saveAccessory are : ' + JSON.stringify(params));
     ajaxHelper('masterfile.asmx/saveAccessory', 'POST', JSON.stringify(params)).done(function (data) {
-        console.log('the received from insertVehicleLog data is : ' + JSON.stringify(data));
+        //console.log('the received from insertVehicleLog data is : ' + JSON.stringify(data));
         if (data.d != '') {
             $('#div_msg').html('');
             $('#div_msg').html(data.d);
@@ -155,7 +155,7 @@ var saveAccessory = function () {
 var initTable = function () {
 
     var search = $('#txtsearch').val();
-    console.log('the txtsearch is : ' + search );
+    //console.log('the txtsearch is : ' + search );
     vTable = $('#T_Accessory').dataTable({
         "bLengthChange": false,
         "filter": false,
@@ -184,7 +184,7 @@ var initTable = function () {
                    
                     var json = jQuery.parseJSON(msg.d);
                     fnCallback(json);
-                    console.log("the value of msg is : " + JSON.stringify(msg) );
+                   // console.log("the value of msg is : " + JSON.stringify(msg) );
                     
                 },
                 error: function (xhr, textStatus, error) {

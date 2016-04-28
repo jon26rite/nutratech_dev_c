@@ -34,7 +34,7 @@ var initializeBindings = function () {
 
     //SAVE============================================================
     buttonSave.click(function () {
-        console.log('button save is clicked!');
+       // console.log('button save is clicked!');
         saveAccessory();
         disable_form();
     });
@@ -203,7 +203,7 @@ var loadAccessories = function () {
         searchString: searchString
     };
 
-    console.log('the value of parameters in loadAccessories are : ' + JSON.stringify(parameters));
+   // console.log('the value of parameters in loadAccessories are : ' + JSON.stringify(parameters));
     ajaxHelper('masterfile.asmx/getAccessories', 'POST',
                 JSON.stringify(parameters)).done(function (data) {
                     var datad = data.d;
@@ -223,11 +223,11 @@ var multipleInsert = function () {
 
         if (row.find('input[type="checkbox"]').is(':checked')) {
             $.each(codeColumn, function () {                    // Visits every single <td> element
-                console.log("code : " + $(this).text());        // Prints out the text within the <td>
+             //   console.log("code : " + $(this).text());        // Prints out the text within the <td>
                 code = $(this).text();
             });
             $.each(descriptionColumn, function () {             // Visits every single <td> element
-                console.log("description : " + $(this).text());     // Prints out the text within the <td>
+             //   console.log("description : " + $(this).text());     // Prints out the text within the <td>
                 description = $(this).text();
             });
             items.push(new item(code, description));
@@ -239,7 +239,7 @@ var multipleInsert = function () {
         group_cd: input_accessory_group_cd.val(),
         audit_user: input_audit_user.val()
     }
-    console.log("the parameters of multiple insert is : " + JSON.stringify(parameters));
+   // console.log("the parameters of multiple insert is : " + JSON.stringify(parameters));
 
     if (items.length > 0) {
         ajaxHelper('masterfile.asmx/batchInsertToVehicleAccessory', 'POST', JSON.stringify(parameters)).done(function (data) {
@@ -271,11 +271,11 @@ var multipleRemove = function () {
 
         if (row.find('input[type="checkbox"]').is(':checked')) {
             $.each(codeColumn, function () {                    // Visits every single <td> element
-                console.log("code : " + $(this).text());        // Prints out the text within the <td>
+              //  console.log("code : " + $(this).text());        // Prints out the text within the <td>
                 code = $(this).text();
             });
             $.each(descriptionColumn, function () {             // Visits every single <td> element
-                console.log("description : " + $(this).text());     // Prints out the text within the <td>
+              //  console.log("description : " + $(this).text());     // Prints out the text within the <td>
                 description = $(this).text();
             });
             items.push(new item(code, description));
@@ -286,7 +286,7 @@ var multipleRemove = function () {
         vehicle_plate_no: input_vehicle_cd.val(),
         audit_user: input_audit_user.val()
     }
-    console.log("the parameters of multiple remove is : " + JSON.stringify(parameters));
+   // console.log("the parameters of multiple remove is : " + JSON.stringify(parameters));
 
     if (items.length > 0) {
         ajaxHelper('masterfile.asmx/batchRemoveFromVehicleAccessory', 'POST', JSON.stringify(parameters)).done(function (data) {
