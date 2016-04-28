@@ -341,11 +341,7 @@
                         <button id="btnReport" type="button" class="btn btn-primary btn-sm btn-block"><span class="fa fa-file-pdf-o fa-fw" aria-hidden="true"></span>PDF Report</button>
                     </div>
                 </div>
-                <div class="col-sm-2">
-                    <div class="row xrow">
-                        <button id="btnOSExcelReport" type="button"  class="btn btn-primary btn-sm btn-block"  runat="server" onclick="onbtnOSExcelReportClick()"><span class="fa fa-file-excel-o fa-fw" aria-hidden="true"></span> OS Excel Report</button>
-                    </div>
-                </div>
+               
             </div>
             <div class="row xrow dataTable_wrapper">
 
@@ -600,60 +596,7 @@
         </div>
     </div>
 
-    <!--OS REPORT MODAL -->
-      <div class="modal fade" id="OSReportModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title"><i class="fa fa-print fa-fw"></i>Office Supply Reports</h4>
-                </div>
-                <div class="modal-body">
-                    <div class="row xrow">
-                        <div class="input-group input-group-sm">
-                            <span class="input-group-addon span-addon-pw" style="color: #286090; text-align: left;">Report Type : </span>
-                            <asp:DropDownList ID="DD_Report_Details" CssClass="form-control" runat="server">
-                                <asp:ListItem Value="1" Selected="True">Monthly Issuance</asp:ListItem>
-                                <asp:ListItem Value="2" >Monthly Received</asp:ListItem>
-                                <asp:ListItem Value="0">Ending Balance</asp:ListItem>
-                            </asp:DropDownList>
-                        </div>
-                    </div>
-                   
-                    <div class="row xrow">
-                        <div class="input-group input-group-sm">
-                            <span class="input-group-addon span-addon-pw" style="color: #286090; text-align: left;">As of Date : </span>
-                           <asp:TextBox  id="os_report_as_of_date" class="form-control" placeholder="Date" runat="server" ></asp:TextBox>
-                     
-                        </div>
-                    </div>
-
-                     <div class="row xrow">
-                        <div class="input-group input-group-sm">
-                            <span class="input-group-addon span-addon-pw" style="color: #286090; text-align: left;">Highlight Unit Cost : </span>
-                            <asp:DropDownList ID="HighLight" CssClass="form-control" runat="server">
-                                <asp:ListItem Value="true" Selected="True">Enable</asp:ListItem>
-                                <asp:ListItem Value="false">Disable</asp:ListItem>
-                            </asp:DropDownList>
-                        </div>
-                    </div>
-
-                  
-                    
-                </div>
-
-    
-                <div class="modal-footer">
-                  
-                    
-                    <button id="Button1" class="btn btn-sm btn-success" runat="server"   onserverclick="GenerateOSExcelReport">Generate Report</button>
-                  <!--  <button type="button" id="btnGenerateOSReport" class="btn btn-sm btn-success disabled" runat="server" onserverclick="GenerateOSExcelReport"><span class="fa fa-print fa-fw" aria-hidden="true"></span>Generate Report</button>-->
-                    <button type="button" class="btn btn-sm btn-warning" data-dismiss="modal"><i class="fa fa-remove fa-fw"></i>Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
+  
 
 
     <!-- DataTables JavaScript -->
@@ -668,7 +611,6 @@
     <!-- JQuery Confirm -->
     <script src="bower_components/jquery-confirm/jquery-confirm.min.js" type="text/javascript"></script>
 
-    <!--script for excel report (office supplies only) -->
-     <script src="javascript/cha/office_supply_report.js" type="text/javascript"></script>
+  
 
 </asp:Content>
