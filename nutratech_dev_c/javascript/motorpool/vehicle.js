@@ -358,7 +358,7 @@ function viewTableRowData(rowData) {
                 plate_no: JSON.stringify(rowData.plate_no)
             },
             success: function (response) {
-                console.log(JSON.stringify(response));
+               // console.log(JSON.stringify(response));
                 var myData = JSON.parse(response.d);
                
               // console.log(myData)
