@@ -24,7 +24,7 @@ public partial class inventory : System.Web.UI.Page
         {
             HttpContext.Current.Session["table_name"] = null;
 
-            BindInventoryDropdownlist(DDepartment);
+            
             BindInventoryDropdownlist(DDivision);
             BindInventoryDropdownlist(DDWarehouse);
 
@@ -45,7 +45,8 @@ public partial class inventory : System.Web.UI.Page
                     hidden_username.Value = HttpContext.Current.Session["username"].ToString();
                     hidden_trx_type.Value = "RS";
                     div_po.Visible = true;
-
+                    BindInventoryDropdownlist(DDepartment);
+                    BindInventoryDropdownlist(DDWarehouse);
 
                 }
                 else if (Request.QueryString["ID"].ToString() == "120")
@@ -61,8 +62,7 @@ public partial class inventory : System.Web.UI.Page
                     txtUserEntry.Value = HttpContext.Current.Session["username"].ToString();
                     hidden_username.Value = HttpContext.Current.Session["username"].ToString();
                     hidden_trx_type.Value = "IS";
-
-
+                    BindInventoryDropdownlist(DDepartment);
                 }
                 else if (Request.QueryString["ID"].ToString() == "131")
                 {
@@ -77,7 +77,7 @@ public partial class inventory : System.Web.UI.Page
                     txtUserEntry.Value = HttpContext.Current.Session["username"].ToString();
                     hidden_username.Value = HttpContext.Current.Session["username"].ToString();
                     hidden_trx_type.Value = "RA";
-
+                    BindInventoryDropdownlist(DDepartment);
 
                 }
                 else if (Request.QueryString["ID"].ToString() == "132")
@@ -93,7 +93,7 @@ public partial class inventory : System.Web.UI.Page
                     txtUserEntry.Value = HttpContext.Current.Session["username"].ToString();
                     hidden_username.Value = HttpContext.Current.Session["username"].ToString();
                     hidden_trx_type.Value = "IA";
-
+                    BindInventoryDropdownlist(DDepartment);
 
 
                 }
@@ -111,7 +111,7 @@ public partial class inventory : System.Web.UI.Page
                     hidden_username.Value = HttpContext.Current.Session["username"].ToString();
                     hidden_trx_type.Value = "IT";
                     div_transfer.Visible = true;
-
+                    BindInventoryDropdownlist(DDepartment);
                     BindInventoryDropdownlist(DDTransfer_Company);
                     BindInventoryDropdownlist(DDTransfer_Warehouse);
 
@@ -132,6 +132,7 @@ public partial class inventory : System.Web.UI.Page
                     hidden_trx_type.Value = "RQ";
                     div_po.Visible = true;
                     div_qc_process.Visible = true;
+                    BindInventoryDropdownlist(DDepartment);
 
                 }
                 else if (Request.QueryString["ID"].ToString() == "152")
@@ -149,6 +150,7 @@ public partial class inventory : System.Web.UI.Page
                     hidden_trx_type.Value = "IQ";
                     div_po.Visible = true;
                     div_qc_process.Visible = true;
+                    BindInventoryDropdownlist(DDepartment);
 
                 }
                 else if (Request.QueryString["ID"].ToString() == "190")
@@ -161,6 +163,10 @@ public partial class inventory : System.Web.UI.Page
                     hidden_useraccess.Value = HttpContext.Current.Session["access_level"].ToString();
                     txtUserEntry.Value = HttpContext.Current.Session["username"].ToString();
                     hidden_username.Value = HttpContext.Current.Session["username"].ToString();
+                    try { 
+                    BindInventoryDropdownlist(DDepartment);
+                    }
+                    catch { }
                     BindInventoryDropdownlist(DDReport_Warehouse);
 
                 }
@@ -190,8 +196,26 @@ public partial class inventory : System.Web.UI.Page
         switch (_obj.ID)
         {
             case "DDepartment":
-                sql = "SELECT code, descs FROM cf_department WHERE (status = 1)  AND (code = '" + HttpContext.Current.Session["department_code"] + "') ORDER BY descs";
-
+                
+                if (HttpContext.Current.Session["trx_type"].ToString().Trim() == "RS")
+                {
+                    sql = "SELECT code, descs FROM cf_department WHERE (status = 1)  AND (code = '" + HttpContext.Current.Session["department_code"] + "') ORDER BY descs";
+                }
+                else if (HttpContext.Current.Session["trx_type"].ToString().Trim() == "RA")
+                {
+                    sql = "SELECT code, descs FROM cf_department WHERE (status = 1)  AND (code = '" + HttpContext.Current.Session["department_code"] + "') ORDER BY descs";
+                }
+                else {
+                    if (HttpContext.Current.Session["department_code"].ToString().Trim() == "00001")
+                    {
+                        sql = "SELECT code, descs FROM cf_department WHERE (status = 1)  ORDER BY descs";
+                    }
+                    else
+                    {
+                        sql = "SELECT code, descs FROM cf_department WHERE (status = 1)  AND (code = '" + HttpContext.Current.Session["department_code"] + "') ORDER BY descs";
+                    }
+                }
+                
                 break;
             case "DDivision":
                 sql = "SELECT code, descs FROM cf_division WHERE (status = 1) ORDER BY descs";
