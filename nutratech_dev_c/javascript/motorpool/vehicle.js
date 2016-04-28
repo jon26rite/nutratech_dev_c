@@ -100,29 +100,7 @@ function initTable() {
             { "mDataProp": "location", "sTitle": "Location" }
         ]
     });
-     
-    //vTable.DataTable();
-    $('#txtsearch').keyup(function () {
 
-        $.fn.dataTableExt.afnFiltering.push(function (oSettings, aData, iDataIndex) {
-
-            console.log(aData)
-        })
-           // console.log("searching")
-           // console.log(vTable)
-           
-           // vTable.api().draw();           // vTable.fnFilter($(this).val());
-        //vTable.api().search($(this).val()).api().draw();
-
-            $.fn.dataTable.ext.search.push(
-        function (settings, data, dataIndex) {
-            console.log("hehe")
-            console.log(data)
-            
-            return false;
-        }
-    );
-        })
 }
 
 function validateInputFields() {
