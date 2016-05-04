@@ -108,7 +108,7 @@
 
                     <button id="Button1" class="btn btn-sm btn-primary " runat="server" onserverclick="GenerateOSExcelReport">Generate Report</button>
                     <!--  <button type="button" id="btnGenerateOSReport" class="btn btn-sm btn-success disabled" runat="server" onserverclick="GenerateOSExcelReport"><span class="fa fa-print fa-fw" aria-hidden="true"></span>Generate Report</button>-->
-                    <button type="button" class="btn btn-sm btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-sm btn-default" data-dismiss="modal" style="width:100px;">Close</button>
                 </div>
             </div>
         </div>

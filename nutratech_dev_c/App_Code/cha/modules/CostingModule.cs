@@ -85,7 +85,6 @@ namespace cha.modules
 
                     SqlDataAdapter adapter = new SqlDataAdapter("sp_inventory_stock_list", connection);
                     adapter.SelectCommand.Parameters.AddWithValue("@companyCd", selected_row["company_cd"]);
-                    
                     adapter.SelectCommand.Parameters.AddWithValue("@receivingReceipt", '%' + selected_row["receiving_receipt"] + '%');
                     adapter.SelectCommand.Parameters.AddWithValue("@controlNo", '%' + selected_row["control_no"] + '%');
                     adapter.SelectCommand.Parameters.AddWithValue("@warehouseCd", '%' + selected_row["warehouse_cd"] + '%');
@@ -196,7 +195,6 @@ namespace cha.modules
        
         public void updateUnitCost(Dictionary<string, string> selected_row, decimal value, int by_doc_no){
             decimal unit_cost = value;
-           
             string item_cd = selected_row["item_cd"];
             string item_type_cd = selected_row["item_type_cd"];
             string item_class_cd = selected_row["item_class_cd"];

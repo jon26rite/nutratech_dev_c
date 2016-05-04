@@ -344,7 +344,7 @@
 
                 <div class="modal-footer">
                     <button type="button" id="btnViewReport" class="btn btn-sm btn-primary disabled  ">Generate Report</button>
-                    <button type="button" class="btn btn-sm btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-sm btn-default" data-dismiss="modal" style="width: 100px;">Close</button>
                 </div>
             </div>
         </div>
@@ -369,7 +369,7 @@
 
                 <div class="modal-footer">
                     <button type="button" id="btn_update_yes" class="btn btn-sm btn-primary " style="width: 100px;">OK</button>
-                    <button type="button" class="btn btn-sm btn-secondary " style="width: 100px;" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-sm btn-default " style="width: 100px;" data-dismiss="modal">Cancel</button>
                 </div>
             </div>
         </div>
