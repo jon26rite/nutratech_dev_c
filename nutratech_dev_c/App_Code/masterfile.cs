@@ -6362,7 +6362,8 @@ public class masterfile : System.Web.Services.WebService
         {
             String connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
             AdminReport adminReport = new AdminReport(connectionString);
-            EndingInventoryDataTable adminInventoryTable = adminReport.getItems(company_cd, inout_mode);
+            string username = HttpContext.Current.Session["username"].ToString();
+            EndingInventoryDataTable adminInventoryTable = adminReport.getItems(company_cd, inout_mode, username);
 
             return "{\"aaData\":" + adminInventoryTable.toJsonFormat() + " }";
         }
@@ -6383,13 +6384,14 @@ public class masterfile : System.Web.Services.WebService
 
     [WebMethod(EnableSession = true)]
     [ScriptMethod(ResponseFormat = ResponseFormat.Json, UseHttpGet = true)]
-    public string GetTableData_Cost(string po_no, string receiving_receipt, string control_no, string company_cd)
+    public string GetTableData_Cost(string po_no, string receiving_receipt, string control_no, string company_cd, string inout_mode, string ref_no)
     {
         try
         {
             String connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
             CostingModule costingModule = new CostingModule(connectionString);
-            EndingInventoryDataTable costingDataTable = costingModule.getReceivedItems(company_cd, po_no, receiving_receipt, control_no);
+            string username = HttpContext.Current.Session["username"].ToString();
+            EndingInventoryDataTable costingDataTable = costingModule.getStockCardItems(company_cd, po_no, receiving_receipt, control_no, username, inout_mode, ref_no);
 
             return "{\"aaData\":" + costingDataTable.toJsonFormat() + " , \"received_total\":" + costingDataTable.getTotalCostReceived() + " }";
         }
@@ -6414,7 +6416,8 @@ public class masterfile : System.Web.Services.WebService
         {
             String connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
             CostingModule costingModule = new CostingModule(connectionString);
-            EndingInventoryDataTable costingDataTable = costingModule.getIssuedItemsByReceiptingDetails(selected_row);
+            string username = HttpContext.Current.Session["username"].ToString();
+            EndingInventoryDataTable costingDataTable = costingModule.getIssuedItemsByReceiptingDetails(selected_row, username);
 
             return "{\"aaData\":" + costingDataTable.toJsonFormat() + "}";
         }
@@ -6437,7 +6440,8 @@ public class masterfile : System.Web.Services.WebService
         {
             String connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
             CostingModule costingModule = new CostingModule(connectionString);
-            EndingInventoryDataTable costingDataTable = costingModule.getSameRows(selected_row);
+            string username = HttpContext.Current.Session["username"].ToString();
+            EndingInventoryDataTable costingDataTable = costingModule.getSameRows(selected_row, username);
 
             return "{\"aaData\":" + costingDataTable.toJsonFormat() + "}";
         }
@@ -6485,51 +6489,64 @@ public class masterfile : System.Web.Services.WebService
     [ScriptMethod(ResponseFormat = ResponseFormat.Json, UseHttpGet = false)]
     public void isRecordsValid(Dictionary<string, string> values)
     {
-
+        string username = HttpContext.Current.Session["username"].ToString();
         string company_cd = values["company_cd"];
         string item_category_cd = values["item_category_cd"];
         DateTime as_of_date = Convert.ToDateTime(values["as_of_date"]);
         int report_details = Convert.ToInt32(values["report_details"]);
+
         String connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
+        UserAccessModule userAccess = new UserAccessModule(connectionString);
 
-        CostingDataSet stk_ds = new CostingDataSet();
-        LinkedList<String> inventoryItemList = new LinkedList<string>();
-        DataTable dtFromDataSet = stk_ds.Tables["stock_inventory"];
-        EndingInventoryDataTable endingInventoryDataTable = new EndingInventoryDataTable(dtFromDataSet);
-        if (report_details == 0) { endingInventoryDataTable.ReportType = EndingInventoryDataTable.Details.Summarized; }
-
-
-        try
+        if (userAccess.isUserAuthorized(username, item_category_cd))
         {
-            using (SqlConnection con = new SqlConnection(connectionString))
+            CostingDataSet stk_ds = new CostingDataSet();
+            LinkedList<String> inventoryItemList = new LinkedList<string>();
+            DataTable dtFromDataSet = stk_ds.Tables["stock_inventory"];
+            EndingInventoryDataTable endingInventoryDataTable = new EndingInventoryDataTable(dtFromDataSet);
+            if (report_details == 0) { endingInventoryDataTable.ReportType = EndingInventoryDataTable.Details.Summarized; }
+
+
+            try
             {
-                DataTable dataTable = new DataTable();
-                SqlDataAdapter adapter = new SqlDataAdapter("sp_ending_inventory", con);
-                adapter.SelectCommand.Parameters.AddWithValue("@companyCd", company_cd);
-                adapter.SelectCommand.Parameters.AddWithValue("@date", as_of_date);
-                adapter.SelectCommand.Parameters.AddWithValue("@itemCategoryCd", item_category_cd);
-                adapter.SelectCommand.CommandType = CommandType.StoredProcedure;
-                adapter.Fill(dataTable);
-                foreach (DataRow dr in dataTable.Rows)
+                using (SqlConnection con = new SqlConnection(connectionString))
                 {
-                    endingInventoryDataTable.addRow(dr);
+                    DataTable dataTable = new DataTable();
+                    SqlDataAdapter adapter = new SqlDataAdapter("sp_ending_inventory", con);
+                    adapter.SelectCommand.Parameters.AddWithValue("@companyCd", company_cd);
+                    adapter.SelectCommand.Parameters.AddWithValue("@date", as_of_date);
+                    adapter.SelectCommand.Parameters.AddWithValue("@itemCategoryCd", item_category_cd);
+                    adapter.SelectCommand.Parameters.AddWithValue("@username", username);
+
+                    adapter.SelectCommand.CommandType = CommandType.StoredProcedure;
+                    adapter.Fill(dataTable);
+                    foreach (DataRow dr in dataTable.Rows)
+                    {
+                        endingInventoryDataTable.addRow(dr);
+                    }
                 }
             }
-        }
 
-        catch (Exception ex)
-        {
-            if (ex is InvalidOperationException)
+            catch (Exception ex)
             {
-                Context.Response.StatusCode = (int)System.Net.HttpStatusCode.Forbidden;
+                if (ex is InvalidOperationException)
+                {
+                    Context.Response.StatusCode = (int)System.Net.HttpStatusCode.Forbidden;
+                }
+                else
+                {
+                    Context.Response.StatusCode = (int)System.Net.HttpStatusCode.InternalServerError;
+                }
+                System.Diagnostics.Debug.WriteLine("error: " + ex.Message);
+                Context.Response.StatusDescription = ex.Message;
             }
-            else
-            {
-                Context.Response.StatusCode = (int)System.Net.HttpStatusCode.InternalServerError;
-            }
-            System.Diagnostics.Debug.WriteLine("error: " + ex.Message);
-            Context.Response.StatusDescription = ex.Message;
+
         }
+        else {
+            Context.Response.StatusCode = (int)System.Net.HttpStatusCode.Forbidden;
+            Context.Response.StatusDescription = "You are not authorized for this access.";
+        }
+        
 
     }
 

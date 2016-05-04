@@ -15,11 +15,10 @@ namespace cha.modules
     /// <summary>
     /// Contains methods for costing operations.
     /// </summary>
-    public class CostingModule
+    public class CostingModule : Module
     {
 
-        private string connectionString;
-        private SqlConnection connection;
+       
 
         /// <summary>
         /// Creates new instance of CostingModule.
@@ -37,7 +36,7 @@ namespace cha.modules
         }
 
 
-        public EndingInventoryDataTable getReceivedItems(string company_cd, string po_no, string receiving_receipt, string control_no)
+        public EndingInventoryDataTable getStockCardItems(string company_cd, string po_no, string receiving_receipt, string control_no, string username, string inout_mode, string ref_no)
         {
             CostingDataSet stk_ds = new CostingDataSet();
             DataTable source = stk_ds.Tables["stock_inventory"];
@@ -46,14 +45,15 @@ namespace cha.modules
             {
                 using (connection= new SqlConnection(connectionString))
                 {
-                   
+                  
                     SqlDataAdapter adapter = new SqlDataAdapter("sp_inventory_stock_list", connection);
                     adapter.SelectCommand.Parameters.AddWithValue("@companyCd", company_cd);
                     adapter.SelectCommand.Parameters.AddWithValue("@poNo",  po_no );
                     adapter.SelectCommand.Parameters.AddWithValue("@receivingReceipt", receiving_receipt );
                     adapter.SelectCommand.Parameters.AddWithValue("@controlNo", control_no);
-                    adapter.SelectCommand.Parameters.AddWithValue("@inOutMode", "I");
-                    //the following parameters are not necessary for getting the received entries
+                    adapter.SelectCommand.Parameters.AddWithValue("@inOutMode", inout_mode);
+                    adapter.SelectCommand.Parameters.AddWithValue("@username", username);
+                    adapter.SelectCommand.Parameters.AddWithValue("@ref_no", ref_no);
                     adapter.SelectCommand.Parameters.AddWithValue("@itemCd", '%' + "" + '%');
                     adapter.SelectCommand.Parameters.AddWithValue("@itemTypeCd", '%' + "" + '%');
                     adapter.SelectCommand.Parameters.AddWithValue("@itemClassCd", '%' + "" + '%');
@@ -73,7 +73,7 @@ namespace cha.modules
             return costingDataTable;
         }
 
-        public EndingInventoryDataTable getIssuedItemsByReceiptingDetails(Dictionary<string, string> selected_row)
+        public EndingInventoryDataTable getIssuedItemsByReceiptingDetails(Dictionary<string, string> selected_row, string username)
         {
             CostingDataSet stk_ds = new CostingDataSet();
             DataTable source = stk_ds.Tables["stock_inventory"];
@@ -85,6 +85,7 @@ namespace cha.modules
 
                     SqlDataAdapter adapter = new SqlDataAdapter("sp_inventory_stock_list", connection);
                     adapter.SelectCommand.Parameters.AddWithValue("@companyCd", selected_row["company_cd"]);
+                    
                     adapter.SelectCommand.Parameters.AddWithValue("@receivingReceipt", '%' + selected_row["receiving_receipt"] + '%');
                     adapter.SelectCommand.Parameters.AddWithValue("@controlNo", '%' + selected_row["control_no"] + '%');
                     adapter.SelectCommand.Parameters.AddWithValue("@warehouseCd", '%' + selected_row["warehouse_cd"] + '%');
@@ -94,8 +95,10 @@ namespace cha.modules
                     adapter.SelectCommand.Parameters.AddWithValue("@itemCategoryCd", '%' + selected_row["item_category_cd"] + '%');
                     adapter.SelectCommand.Parameters.AddWithValue("@lotNo", '%' +selected_row["lot_no"] + '%');
                     adapter.SelectCommand.Parameters.AddWithValue("@inOutMode", '%' + "O" + '%');
+                    adapter.SelectCommand.Parameters.AddWithValue("@username", username);
                     //the following parameters are not necessary to get the issuance entries
                     adapter.SelectCommand.Parameters.AddWithValue("@poNo", '%' + "" + '%');
+                    adapter.SelectCommand.Parameters.AddWithValue("@ref_no", '%' + "" + '%');
                     adapter.SelectCommand.CommandType = CommandType.StoredProcedure;
                     adapter.Fill(costingDataTable);
 
@@ -112,7 +115,7 @@ namespace cha.modules
 
 
 
-        public EndingInventoryDataTable getSameRows(Dictionary<string, string> selected_row) {
+        public EndingInventoryDataTable getSameRows(Dictionary<string, string> selected_row, string username) {
             EndingInventoryDataTable resultTable = new EndingInventoryDataTable();
 
             if (connectionString != null)
@@ -121,16 +124,9 @@ namespace cha.modules
                 {
                     SqlDataAdapter adapter = new SqlDataAdapter("sp_inventory_costing_get_same_rows", connection);
                     adapter.SelectCommand.Parameters.AddWithValue("@companyCd", selected_row["company_cd"]);
-                   // adapter.SelectCommand.Parameters.AddWithValue("@poNo", '%' + selected_row["po_no"] + '%');
-                  //  adapter.SelectCommand.Parameters.AddWithValue("@receivingReceipt", selected_row["receiving_receipt"]);
                     adapter.SelectCommand.Parameters.AddWithValue("@controlNo", selected_row["control_no"] );
                     adapter.SelectCommand.Parameters.AddWithValue("@inOutMode", "I");
-                 //   adapter.SelectCommand.Parameters.AddWithValue("@itemCd", "%");
-                  //  adapter.SelectCommand.Parameters.AddWithValue("@itemTypeCd", "%");
-                 //   adapter.SelectCommand.Parameters.AddWithValue("@itemClassCd", "%");
-                 //   adapter.SelectCommand.Parameters.AddWithValue("@itemCategoryCd", "%");
-                 //  adapter.SelectCommand.Parameters.AddWithValue("@lotNo", '%' + selected_row["lot_no"] + '%');
-                 //   adapter.SelectCommand.Parameters.AddWithValue("@warehouseCd", selected_row["warehouse_cd"]);
+                    adapter.SelectCommand.Parameters.AddWithValue("@username", username);
                     adapter.SelectCommand.CommandType = CommandType.StoredProcedure;
                     adapter.Fill(resultTable);
                 }

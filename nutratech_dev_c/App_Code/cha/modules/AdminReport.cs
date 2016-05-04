@@ -9,12 +9,10 @@ using System.Web;
 /// <summary>
 /// Summary description for AdminReport
 /// </summary>
-public class AdminReport
+public class AdminReport : Module
 {
 
-    private string connectionString;
-    private SqlConnection connection;
-
+   
     /// <summary>
     /// Creates new instance of CostingModule.
     /// </summary>
@@ -30,7 +28,7 @@ public class AdminReport
         this.connectionString = connectionString;
     }
 
-    public EndingInventoryDataTable getItems(string company_cd, string inout_mode)
+    public EndingInventoryDataTable getItems(string company_cd, string inout_mode, string username)
     {
         CostingDataSet stk_ds = new CostingDataSet();
         DataTable source = stk_ds.Tables["stock_inventory"];
@@ -43,6 +41,7 @@ public class AdminReport
                 SqlDataAdapter adapter = new SqlDataAdapter("sp_inventory_os_search_by_inout_mode", connection);
                 adapter.SelectCommand.Parameters.AddWithValue("@companyCd", company_cd);
                 adapter.SelectCommand.Parameters.AddWithValue("@inOutMode", inout_mode);
+                adapter.SelectCommand.Parameters.AddWithValue("@username", username);
                 adapter.SelectCommand.CommandType = CommandType.StoredProcedure;
                 adapter.Fill(costingDataTable);
             }

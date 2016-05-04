@@ -35,6 +35,7 @@ public partial class CostingReportViewer : System.Web.UI.Page
         {
 
             string company_cd = Request.QueryString["company_cd"].ToString();
+            string username = HttpContext.Current.Session["username"].ToString();
            // List<int> months = Request.QueryString["months[]"].Split(',').Select(Int32.Parse).ToList();
             string item_category_cd = Request.QueryString["item_category_cd"].ToString();
             DateTime as_of_date = Convert.ToDateTime(Request.QueryString["as_of_date"].ToString());
@@ -59,6 +60,7 @@ public partial class CostingReportViewer : System.Web.UI.Page
                     SqlDataAdapter adapter = new SqlDataAdapter("sp_ending_inventory", con);
                     adapter.SelectCommand.Parameters.AddWithValue("@companyCd", company_cd);
                     adapter.SelectCommand.Parameters.AddWithValue("@date", as_of_date);
+                    adapter.SelectCommand.Parameters.AddWithValue("@username", username);
                     adapter.SelectCommand.Parameters.AddWithValue("@itemCategoryCd", item_category_cd);
                     adapter.SelectCommand.CommandType = CommandType.StoredProcedure;
                     adapter.Fill(dataTable);
@@ -91,7 +93,7 @@ public partial class CostingReportViewer : System.Web.UI.Page
             Crystal_datasource.SetupReport(cryRpt);
 
             cryRpt.SetDataSource(stk_ds.Tables["stock_inventory"]);
-            cryRpt.ParameterFields["user"].CurrentValues.AddValue(HttpContext.Current.Session["username"].ToString());
+            cryRpt.ParameterFields["user"].CurrentValues.AddValue(username);
             cryRpt.ParameterFields["year"].CurrentValues.AddValue("change this year");
             cryRpt.ParameterFields["date"].CurrentValues.AddValue(as_of_date.ToString("MMM-dd-yyyy"));
             cryRpt.ParameterFields["item_category_descs"].CurrentValues.AddValue(item_category_descs);

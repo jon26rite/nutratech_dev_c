@@ -212,7 +212,6 @@ namespace cha.utils
 
             EIDataRow eiRow = convertToTableRow(dr);
             EIDataRow existingDataRow = null;
-            //findInRows will throw an InvalidOperationException when there are rows with the same receipting details.
             existingDataRow = findInRows(eiRow);
          
             if (ReportType == EndingInventoryDataTable.Details.Summarized)
@@ -226,8 +225,6 @@ namespace cha.utils
                     if (eiRow.inout_mode == "I")
                     {
                         
-                        //total_received = (qty * (1 / uom_conversion_factor));
-                       // existingDataRow.total_received = total_received;
                         existingDataRow.total_received += (eiRow.qty * (1 / eiRow.uom_conversion_factor));
                     }
                     else
@@ -245,44 +242,53 @@ namespace cha.utils
 
         private EIDataRow findInRows(EIDataRow row)
         {
-            foreach (EIDataRow dr in this.Rows)
-            {
-                bool conditions_match = true;
-                bool month_cd_match = dr.month_cd == row.month_cd;
-                bool complete_item_cd_match = dr.complete_item_cd == row.complete_item_cd;
-                bool warehouse_cd_match = dr.warehouse_cd == row.warehouse_cd;
-                bool lot_no_match = dr.lot_no == row.lot_no;
-                bool control_no_match = dr.control_no == row.control_no;
-                bool receiving_receipt_match = dr.receiving_receipt == row.receiving_receipt;
-                bool mfg_date_match = dr.mfg_date == row.mfg_date;
-                bool expiry_date_match = dr.expiry_date== row.expiry_date;
-                bool is_not_valid = (dr.inout_mode == "I" && row.inout_mode == "I");
+          
+                    foreach (EIDataRow dr in this.Rows)
+                    {
+                        bool conditions_match = true;
+                        bool month_cd_match = dr.month_cd == row.month_cd;
+                        bool complete_item_cd_match = dr.complete_item_cd == row.complete_item_cd;
+                        bool warehouse_cd_match = dr.warehouse_cd == row.warehouse_cd;
+                        bool lot_no_match = dr.lot_no == row.lot_no;
+                        bool control_no_match = dr.control_no == row.control_no;
+                        bool receiving_receipt_match = dr.receiving_receipt == row.receiving_receipt;
+                        bool mfg_date_match = dr.mfg_date == row.mfg_date;
+                        bool expiry_date_match = dr.expiry_date == row.expiry_date;
+                        bool unit_cost_match = dr.unit_cost == row.unit_cost;
 
-                //check row receipting details
-                    conditions_match = conditions_match && complete_item_cd_match;
-                    conditions_match = conditions_match && month_cd_match;
-                    conditions_match = conditions_match && warehouse_cd_match;
-                    conditions_match = conditions_match && lot_no_match;
-                    conditions_match = conditions_match && control_no_match;
-                    conditions_match = conditions_match && receiving_receipt_match;
-                    conditions_match = conditions_match && mfg_date_match;
-                    conditions_match = conditions_match && expiry_date_match;
-                /*
-                    if (conditions_match && is_not_valid)
-                    {
-                        throw new System.InvalidOperationException("Cannot generate ending inventory report. All records must have unique receipting details (RR No: "+row.receiving_receipt+", Item: "+row.item_descs+", Control No: "+row.control_no+", Lot No: "+row.lot_no+")");
+                        switch (row.item_category_cd) { 
+                        
+                            case "RM":
+                            case "PM":
+                                //conditions for organizing rows with Category RM & PM (raw material and packaging material)
+                                conditions_match = conditions_match && complete_item_cd_match;
+                                conditions_match = conditions_match && month_cd_match;
+                                conditions_match = conditions_match && warehouse_cd_match;
+                                conditions_match = conditions_match && lot_no_match;
+                                conditions_match = conditions_match && control_no_match;
+                                conditions_match = conditions_match && receiving_receipt_match;
+                                conditions_match = conditions_match && mfg_date_match;
+                                conditions_match = conditions_match && expiry_date_match;
+                                break;
+                            case "OS":
+                                //conditions for organizing rows with Category OS (office supply)
+                                conditions_match = conditions_match && complete_item_cd_match;
+                                conditions_match = conditions_match && warehouse_cd_match;
+                                conditions_match = conditions_match && unit_cost_match;
+                                break;
+                            default:
+                                throw new System.InvalidOperationException("Datatable operation for item category "+row.item_category_cd+" is not yet supported");
+                               
+                        }
+                       
+
+                        if (conditions_match)
+                        {
+                            return dr;
+                        }
+
                     }
-                    else if(conditions_match)
-                    {
-                        return dr;
-                    }
-                        */
-                    if (conditions_match)
-                    {
-                        return dr;
-                    }
-              
-            }
+                
 
             return null;
 

@@ -75,9 +75,17 @@ $(document).ready(function () {
                 "success": function (msg) {
                     var json = jQuery.parseJSON(msg.d);
                     fnCallback(json);
-
-
+                  
                 }
+            }).done(function (data) {
+                var json = jQuery.parseJSON(data.d);
+               var table_items =  json.aaData.length;
+               if (table_items > 0) {
+                   $('#btnOSExcelReport').removeClass("disabled");
+               } else {
+                   $('#btnOSExcelReport').addClass("disabled");
+               }
+               
             });
 
 

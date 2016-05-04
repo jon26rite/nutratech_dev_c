@@ -11,19 +11,19 @@
     <link href="css/jquery-ui.css" rel="stylesheet" type="text/css" />
     <link href="css/select2-skins.css" rel="stylesheet" type="text/css" />
 
+    
+    <link href="css/cha/submenu.css" rel="stylesheet" type="text/css" />
+   
+
+
+
 
     <style>
         div.dataTables_scrollHead thead tr {
             height: 30px;
         }
-
-        div.dataTables_scrollHeadInner thead tr {
-            height: 0px;
-        }
-
         .icon-arrow-right {
             float: right;
-          
         }
 
         .right {
@@ -59,9 +59,16 @@
             white-space: nowrap;
             overflow: hidden;
             text-align: left;
-            padding: 10px;
+            padding: 0px;
         }
 
+        .dataTable tr td.details{
+            padding:0; margin:0;
+        }
+
+        .dataTable tr td.details > div > .dataTables_scroll > .dataTables_scrollHead {
+             height: 0px;
+        }
         .details {
             background-color: #e7e7e7;
         }
@@ -80,6 +87,26 @@
         .form-control {
             height: inherit !important;
         }
+
+        .table-settings {
+            background-color: transparent;
+            border-color:transparent;
+        }
+
+        .select2-container {
+            border-top-right-radius: 4px !important;
+            border-bottom-right-radius: 4px !important;
+        }
+
+            .select2-container > a > span.select2-arrow {
+                width: 15px !important;
+            }
+
+        .select2-drop {
+            border-radius: 4px !important;
+        }
+
+     
     </style>
 
 
@@ -103,8 +130,77 @@
     <asp:MultiView ID="MultiView1" runat="server">
 
         <asp:View ID="View_StockReport" runat="server">
+            <div class="col-lg-12">
 
-            <div class="row xrow">
+                
+                    <div class="btn-toolbar my-toolbar" role="toolbar">
+                        <div class="btn-group btn-group-sm">
+                            <button id="btn_Report" type="button" class="btn btn-primary btn-sm" title="Create report">Create Report</button>
+                        </div>
+
+
+                        <div class="pull-right">
+
+                            <div class="dropdown btn-group">
+                                <!--
+                                <label class="switch">
+                                    <input type="checkbox" class="switch-input" id="admin_view"/>
+                                    <span class="switch-label" data-on="On" data-off="Off"></span>
+                                    <span class="switch-handle"></span>
+                                </label>-->
+                                <button type="button" class="table-settings btn btn-default btn-sm dropdown-toggle" title="Show table settings" data-toggle="dropdown"><span class="glyphicon glyphicon-cog"></span></button>
+
+                                <ul class="dropdown-menu dropdown-menu-right" role="menu">
+
+                                    <li><a href="#" class="small" data-value="99" tabindex="-1" title="Show items by referrence no">
+                                        <input type="checkbox" value="true" id="showByRef" />&nbsp;By Ref No</a></li>
+                                    <li role="separator" class="divider"></li>
+                                    <li class="dropdown-submenu pull-left disabled" id="li_show_hide_col">
+                                        <a href="#" class="small" tabindex="-1">&nbsp;Show/Hide Columns</a>
+                                        <ul class="dropdown-menu">
+                                            <li><a href="#" class="small" data-value="6" tabindex="-1">
+                                                <input type="checkbox" value="true" id="6" />&nbsp;Total Cost</a></li>
+                                            <li><a href="#" class="small" data-value="7" tabindex="-1">
+                                                <input type="checkbox" id="7" />&nbsp;RR No</a></li>
+                                            <li><a href="#" class="small" data-value="8" tabindex="-1">
+                                                <input type="checkbox" id="8" />&nbsp;Control No</a></li>
+                                            <li><a href="#" class="small" data-value="9" tabindex="-1">
+                                                <input type="checkbox" id="9" />&nbsp;PO No</a></li>
+                                            <li><a href="#" class="small" data-value="10" tabindex="-1">
+                                                <input type="checkbox" id="10" />&nbsp;Ref No</a></li>
+                                            <li><a href="#" class="small" data-value="11" tabindex="-1">
+                                                <input type="checkbox" id="11" />&nbsp;Warehouse</a></li>
+                                            <li><a href="#" class="small" data-value="12" tabindex="-1">
+                                                <input type="checkbox" id="12" />&nbsp;Status</a></li>
+                                            <li><a href="#" class="small" data-value="13" tabindex="-1">
+                                                <input type="checkbox" id="13" />&nbsp;Doc No</a></li>
+                                            <li><a href="#" class="small" data-value="14" tabindex="-1">
+                                                <input type="checkbox" id="14" />&nbsp;Doc Date</a></li>
+                                            <li><a href="#" class="small" data-value="15" tabindex="-1">
+                                                <input type="checkbox" id="15" />&nbsp;Doc Description</a></li>
+                                            <li><a href="#" class="small" data-value="16" tabindex="-1">
+                                                <input type="checkbox" id="16" />&nbsp;Lot No</a></li>
+                                            <li><a href="#" class="small" data-value="17" tabindex="-1">
+                                                <input type="checkbox" id="17" />&nbsp;Mfg Date</a></li>
+                                            <li><a href="#" class="small" data-value="18" tabindex="-1">
+                                                <input type="checkbox" id="18" />&nbsp;Exp Date</a></li>
+                                            <li><a href="#" class="small" data-value="19" tabindex="-1">
+                                                <input type="checkbox" id="19" />&nbsp;Department</a></li>
+                                            <li><a href="#" class="small" data-value="20" tabindex="-1">
+                                                <input type="checkbox" id="20" />&nbsp;Item Remarks</a></li>
+                                        </ul>
+                                    </li>
+
+                                </ul>
+
+                            </div>
+                        </div>
+                    </div>
+                
+            </div>
+
+            <div id="dropdown_menus">
+                 <div class="row xrow">
                 <div class="col-sm-4">
                     <div class="input-group input-group-xs">
                         <span class="input-group-addon span-addon" style="color: #286090; text-align: left;">PO No. : </span>
@@ -130,6 +226,7 @@
                 </div>
 
             </div>
+
             <div class="row xrow">
                 <div class="col-sm-4">
                     <div class="input-group input-group-xs">
@@ -151,12 +248,27 @@
 
             <div class="row xrow">
                 <div class="col-sm-2">
-                    <button id="btn_Report" type="button" class="btn btn-primary btn-sm btn-success" title="Received Items Report"><span class="fa fa-file-excel-o fa-fw" aria-hidden="true"></span>Excel Report</button>
                 </div>
                 <div class="col-sm-4"></div>
                 <div class="col-sm-4">
                 </div>
             </div>
+
+            </div>
+
+           <div id="by_ref_no_dropdowns">
+
+               <div class="row xrow">
+                <div class="col-sm-4">
+                    <div class="input-group input-group-xs">
+                        <span class="input-group-addon span-addon" style="color: #286090; text-align: left;">Ref No. : </span>
+                        <asp:DropDownList ID="DD_ByRefNo" CssClass="form-control" runat="server" >
+                        </asp:DropDownList>
+
+                    </div>
+                </div>
+                   </div>
+           </div>
 
             <div class="row xrow dataTable_wrapper">
                 <!-- <table id="tbl_stock_card" class="table-bordered table-hover item_report table-font">-->
@@ -164,6 +276,8 @@
                     <thead class="GridHeader" />
                 </table>
             </div>
+
+
 
 
 
@@ -191,6 +305,7 @@
                             <asp:DropDownList ID="DD_Item_Category" CssClass="form-control" runat="server">
                                 <asp:ListItem Value="RM" Selected="True">Raw Material</asp:ListItem>
                                 <asp:ListItem Value="PM">Packaging Material</asp:ListItem>
+                                 
                             </asp:DropDownList>
                         </div>
                     </div>
@@ -218,13 +333,18 @@
                             </asp:DropDownList>
                         </div>
                     </div>
+                    <div class="row xrow">
+                        <div class="alert alert-info">
+                            <strong>Note:</strong> For office supply reports, please go to the <strong><a href="admin_inventory_report.aspx" id="">Admin Inventory Reports.</a></strong>
+                        </div>
+                    </div>
 
                 </div>
 
 
                 <div class="modal-footer">
-                    <button type="button" id="btnViewReport" class="btn btn-sm btn-success disabled  "><span class="fa fa-print fa-fw" aria-hidden="true"></span>Generate Report</button>
-                    <button type="button" class="btn btn-sm btn-warning" data-dismiss="modal"><i class="fa fa-remove fa-fw"></i>Close</button>
+                    <button type="button" id="btnViewReport" class="btn btn-sm btn-primary disabled  ">Generate Report</button>
+                    <button type="button" class="btn btn-sm btn-default" data-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -244,9 +364,6 @@
                             <thead class="GridHeader" />
                         </table>
                     </div>
-
-
-
                 </div>
 
 
@@ -268,11 +385,7 @@
                 </div>
                 <div class="modal-body error-body">
                     <label id="error-msg"></label>
-
                 </div>
-
-
-
             </div>
         </div>
     </div>
@@ -291,8 +404,9 @@
     <script src="javascript/cha/jquery.formatCurrency-1.4.0.min.js" type="text/javascript"></script>
     <script src="javascript/cha/jquery.dataTables.editable.js" type="text/javascript"></script>
     <script src="javascript/cha/jquery.jeditable.mini.js" type="text/javascript"></script>
+   
     <script src="javascript/cha/stock_update.js" type="text/javascript" lang="javascript"></script>
-
+  
 
 </asp:Content>
 
